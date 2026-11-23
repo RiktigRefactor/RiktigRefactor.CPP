@@ -1,6 +1,17 @@
 [tools]
 dotnet = "latest"
+cmake = "latest"
+ninja = "latest"
+clang-format = "latest"
 
 [tasks.mdsnippets]
 description = "Update snippets and the table of contents in markdown files"
 run = ["dotnet tool restore", "dotnet mdsnippets"]
+
+[tasks.build-and-test]
+description = "Build and run all tests"
+run = [
+  "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+  "cmake --build build",
+  "ctest --test-dir build --output-on-failure --parallel",
+]

@@ -8,7 +8,7 @@ sudo apt-get install clang-18 clang-format-18 libclang-18-dev llvm-18-dev cmake 
 ./build-and-test
 ```
 
-`build-and-test` checks formatting, builds, and runs every test case; `build-and-test.cmd` does the same on Windows through Git for Windows' Bash, but the build is only tested on Linux.
+`build-and-test` builds and runs every test case; `build-and-test.cmd` does the same on Windows through Git for Windows' Bash, but the build is only tested on Linux.
 Run `./tidy-code` to format the code.
 See [UPDATING_DEPENDENCIES.md](../UPDATING_DEPENDENCIES.md) for moving to a newer clang.
 
