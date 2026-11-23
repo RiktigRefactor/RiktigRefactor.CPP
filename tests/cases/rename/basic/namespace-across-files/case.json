@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "geometry"
+  },
+  "spec": [
+    "C++ [basic.namespace]",
+    "C++ [namespace.alias]",
+    "C++ [namespace.udir]"
+  ]
+}

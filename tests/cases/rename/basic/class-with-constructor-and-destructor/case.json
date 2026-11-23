@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "Tally"
+  },
+  "spec": [
+    "C++ [class.ctor]",
+    "C++ [class.dtor]",
+    "C++ [class.mem]"
+  ]
+}

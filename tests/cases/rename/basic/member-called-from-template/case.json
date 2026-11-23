@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "amount"
+  },
+  "spec": [
+    "C++ [temp.dep]",
+    "C++ [temp.inst]"
+  ],
+  "notes": "The call in the template is dependent; the tool sees what it binds to in the instantiation."
+}

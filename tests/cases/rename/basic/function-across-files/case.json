@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "sum"
+  },
+  "spec": [
+    "C++ [basic.def.odr]",
+    "C++ [basic.link]"
+  ],
+  "notes": "The declaration in a header, the definition in one translation unit and the call in another are renamed together."
+}

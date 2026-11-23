@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "describe"
+  },
+  "spec": [
+    "C++ [temp.fct]",
+    "C++ [temp.expl.spec]"
+  ]
+}

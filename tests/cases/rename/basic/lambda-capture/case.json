@@ -1,0 +1,8 @@
+{
+  "options": {
+    "newName": "step"
+  },
+  "spec": [
+    "C++ [expr.prim.lambda.capture]"
+  ]
+}

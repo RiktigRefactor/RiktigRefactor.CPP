@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "width"
+  },
+  "spec": [
+    "C++ [class.mem]",
+    "C++ [class.base.init]",
+    "C++ [dcl.init.aggr]"
+  ]
+}
