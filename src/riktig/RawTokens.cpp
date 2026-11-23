@@ -20,7 +20,10 @@ static clang::LangOptions cppLanguageOptions() {
     return options;
 }
 
-void forEachRawIdentifier(llvm::StringRef source, const std::function<void(const RawIdentifier &)> &visit) {
+void forEachRawIdentifier(llvm::StringRef unterminatedSource, const std::function<void(const RawIdentifier &)> &visit) {
+    // The lexer reads up to a terminating null character.
+    std::string terminated = unterminatedSource.str();
+    llvm::StringRef source(terminated.c_str(), terminated.size());
     auto options = cppLanguageOptions();
     // A valid file location whose raw encoding is 1, so each token's offset is its encoding minus 1.
     auto base = clang::SourceLocation::getFromRawEncoding(1);
@@ -91,6 +94,34 @@ std::optional<unsigned> identifierStartAround(llvm::StringRef source, unsigned c
         return std::nullopt;
     }
     return offset;
+}
+
+bool hasLiteralSpanningLines(llvm::StringRef unterminatedSource) {
+    std::string terminated = unterminatedSource.str();
+    llvm::StringRef source(terminated.c_str(), terminated.size());
+    auto options = cppLanguageOptions();
+    auto base = clang::SourceLocation::getFromRawEncoding(1);
+    clang::Lexer lexer(base, options, source.begin(), source.begin(), source.end());
+    clang::Token token;
+    while (true) {
+        lexer.LexFromRawLexer(token);
+        if (token.is(clang::tok::eof)) {
+            return false;
+        }
+        if (clang::tok::isStringLiteral(token.getKind()) || token.is(clang::tok::char_constant) ||
+            token.is(clang::tok::unknown)) {
+            unsigned offset = token.getLocation().getRawEncoding() - 1;
+            if (source.substr(offset, token.getLength()).contains('\n')) {
+                return true;
+            }
+        }
+    }
+}
+
+bool hasPreprocessorDirective(llvm::StringRef source) {
+    llvm::SmallVector<llvm::StringRef> lines;
+    source.split(lines, '\n');
+    return llvm::any_of(lines, [](llvm::StringRef line) { return line.ltrim().starts_with("#"); });
 }
 
 bool isCppKeyword(llvm::StringRef name) {

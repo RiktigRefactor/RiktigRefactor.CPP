@@ -1,5 +1,6 @@
 add_executable(riktig-cpp-case-runner
     runner/CaseRunner.cpp
+    runner/NaiveExtractIife.cpp
     runner/NaiveRename.cpp
 )
 target_link_libraries(riktig-cpp-case-runner PRIVATE riktigrefactor-cpp)

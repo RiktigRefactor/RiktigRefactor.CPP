@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda]",
+    "C++ [dcl.init.ref]"
+  ],
+  "notes": "A variable the expression writes is passed by reference."
+}

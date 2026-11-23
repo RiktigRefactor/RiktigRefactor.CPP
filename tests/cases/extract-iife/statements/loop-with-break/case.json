@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [stmt.break]",
+    "C++ [stmt.iter]"
+  ],
+  "notes": "break and continue inside a selected loop stay inside the lambda."
+}

@@ -1,0 +1,6 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda.capture]",
+    "C++ [expr.prim.this]"
+  ]
+}

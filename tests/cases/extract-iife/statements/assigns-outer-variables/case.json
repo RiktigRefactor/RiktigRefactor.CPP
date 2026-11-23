@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda]",
+    "C++ [stmt.block]"
+  ],
+  "notes": "Variables the statements write are passed by reference."
+}

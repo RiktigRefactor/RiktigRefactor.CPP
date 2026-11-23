@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [intro.execution]",
+    "C++ [expr.call]"
+  ],
+  "notes": "The trace shows each call happens once, in the same order."
+}

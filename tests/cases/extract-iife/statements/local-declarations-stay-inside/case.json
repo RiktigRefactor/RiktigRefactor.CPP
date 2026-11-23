@@ -1,0 +1,6 @@
+{
+  "spec": [
+    "C++ [stmt.block]",
+    "C++ [basic.scope.block]"
+  ]
+}

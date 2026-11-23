@@ -25,4 +25,9 @@ std::optional<unsigned> identifierStartAround(llvm::StringRef source, unsigned c
 
 bool isCppKeyword(llvm::StringRef name);
 
+// A string or character literal that spans lines, such as a raw string literal, whose text re-indenting would change.
+bool hasLiteralSpanningLines(llvm::StringRef source);
+
+bool hasPreprocessorDirective(llvm::StringRef source);
+
 } // namespace riktig

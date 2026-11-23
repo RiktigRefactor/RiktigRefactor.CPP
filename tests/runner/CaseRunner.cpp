@@ -218,6 +218,12 @@ RefactoringResult runRefactoring(const CaseDefinition &definition, const Markers
     if (definition.refactoring == "rename") {
         return runRename(*workspace, definition, markers, workspaceDirectory, naive);
     }
+    if (definition.refactoring == "extract-iife") {
+        auto text = readFile(workspaceDirectory + "/" + markers.file);
+        ExtractIifeRequest request{markers.file, positionOfOffset(text, markers.start),
+                                   positionOfOffset(text, markers.end)};
+        return naive ? naiveExtractIife(*workspace, request) : extractIife(*workspace, request);
+    }
     throw Failure{"Unknown refactoring " + definition.refactoring};
 }
 

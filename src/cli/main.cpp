@@ -1,3 +1,4 @@
+#include "ExtractIife.h"
 #include "Rename.h"
 #include "Results.h"
 #include "Workspace.h"
@@ -22,9 +23,10 @@ constexpr int ExitError = 2;
 
 const char *usage = R"(Usage:
   riktig-cpp rename --workspace <compile_commands.json> --file <file> --at <line>:<column> --new-name <name> [--apply] [--json]
+  riktig-cpp extract-iife --workspace <compile_commands.json> --file <file> --from <line>:<column> --to <line>:<column> [--apply] [--json]
 
 The workspace is a compile_commands.json file, or the directory holding it.
-Positions are 1-based, and columns count Unicode scalar values.
+Positions are 1-based, and columns count Unicode scalar values; --to is exclusive.
 By default the tool prints a unified diff; --apply writes the changes, and --json prints the protocol result.
 Exit codes: 0 success, 1 refused, 2 error.
 )";
@@ -164,6 +166,15 @@ int main(int argc, char **argv) {
             return ExitError;
         }
         return report(*workspace, rename(*workspace, RenameRequest{file, *at, options["new-name"]}), json, apply);
+    }
+    if (command == "extract-iife") {
+        auto from = parsePosition(options["from"]);
+        auto to = parsePosition(options["to"]);
+        if (!from || !to) {
+            llvm::errs() << usage;
+            return ExitError;
+        }
+        return report(*workspace, extractIife(*workspace, ExtractIifeRequest{file, *from, *to}), json, apply);
     }
     llvm::errs() << "Unknown command " << command << "\n" << usage;
     return ExitError;

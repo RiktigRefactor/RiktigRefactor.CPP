@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda]",
+    "C++ [expr.call]"
+  ],
+  "notes": "The example from the specification: read-only scalars are passed by value."
+}

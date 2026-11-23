@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda.capture]",
+    "C++ [expr.prim.this]"
+  ],
+  "notes": "Members are reached through a captured this."
+}

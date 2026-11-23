@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [dcl.type.decltype]",
+    "C++ [basic.lval]"
+  ],
+  "notes": "An lvalue is returned by reference with decltype(auto), so assigning to the call assigns to the element."
+}

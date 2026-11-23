@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [class.temporary]",
+    "C++ [stmt.return]"
+  ],
+  "notes": "A class prvalue is returned with guaranteed copy elision, so no copy is made."
+}

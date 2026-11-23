@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda]",
+    "C++ [basic.lval]"
+  ],
+  "notes": "The variable is also reached through a pointer, so it is passed by reference to see the write made through the pointer."
+}
