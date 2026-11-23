@@ -9,13 +9,15 @@ on:
 
 jobs:
   build-and-test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-slim, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-slim
+    env:
+      # The LLVM release tarball needs libtinfo.so.5, which this runner lacks, so use the distro's LLVM 18.
+      MISE_DISABLE_TOOLS: github:llvm/llvm-project
+      RIKTIG_LLVM_ROOT: /usr/lib/llvm-18
     steps:
       - uses: actions/checkout@v7
+      - name: Install clang 18 and its development libraries
+        run: sudo apt-get update && sudo apt-get install -y clang-18 libclang-18-dev libclang-cpp18-dev llvm-18-dev
       - uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
       - run: ./build-and-test
         shell: bash
