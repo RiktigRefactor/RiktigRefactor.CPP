@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "_Value"
+  },
+  "refuse": "invalid-identifier",
+  "spec": [
+    "C++ [lex.name]"
+  ]
+}

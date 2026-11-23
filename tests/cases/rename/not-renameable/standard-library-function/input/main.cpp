@@ -1,0 +1,3 @@
+#include <cstring>
+
+int main() { return std::/*|*/strlen("abc") == 3 ? 0 : 1; }

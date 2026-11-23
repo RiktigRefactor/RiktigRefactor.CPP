@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "left"
+  },
+  "refuse": "would-introduce-errors",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.scope.declarative]"
+  ]
+}

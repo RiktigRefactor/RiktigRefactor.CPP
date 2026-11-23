@@ -1,0 +1,11 @@
+{
+  "options": {
+    "newName": "amount"
+  },
+  "refuse": "unsupported-reference",
+  "spec": [
+    "C++ [temp.dep]",
+    "C++ [temp.res]"
+  ],
+  "notes": "The template is never instantiated, so the tool cannot tell whether holder.value() names the renamed member."
+}

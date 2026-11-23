@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "Element"
+  },
+  "spec": [
+    "C++ [temp.param]",
+    "C++ [temp.local]"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "helper"
+  },
+  "refuse": "conflicting-declaration",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.link]",
+    "C++ [basic.def.odr]"
+  ],
+  "notes": "Neither translation unit sees both functions, but the program would define helper twice."
+}

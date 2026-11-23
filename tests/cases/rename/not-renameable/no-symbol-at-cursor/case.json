@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "other"
+  },
+  "refuse": "no-symbol",
+  "spec": [
+    "C++ [lex.key]"
+  ]
+}

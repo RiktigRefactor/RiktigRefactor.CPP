@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "helper"
+  },
+  "spec": [
+    "C++ [basic.link]"
+  ],
+  "notes": "Functions with internal linkage in different translation units do not conflict."
+}

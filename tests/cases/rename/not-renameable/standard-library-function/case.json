@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "length"
+  },
+  "refuse": "not-renameable",
+  "spec": [
+    "C++ [library]"
+  ]
+}

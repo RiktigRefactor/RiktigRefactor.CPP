@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "compute"
+  },
+  "refuse": "not-renameable",
+  "spec": [
+    "C++ [dcl.link]"
+  ],
+  "notes": "Code outside the workspace may call a C function by name."
+}

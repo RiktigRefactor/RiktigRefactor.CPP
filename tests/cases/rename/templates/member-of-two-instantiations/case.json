@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "amount"
+  },
+  "refuse": "would-introduce-errors",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [temp.dep]",
+    "C++ [temp.inst]"
+  ],
+  "notes": "The same dependent call names the renamed member in one instantiation and another class member in the other."
+}

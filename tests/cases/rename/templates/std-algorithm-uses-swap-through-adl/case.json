@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "exchange"
+  },
+  "refuse": "reference-outside-workspace",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.lookup.argdep]",
+    "C++ [swappable.requirements]"
+  ],
+  "notes": "std::iter_swap finds the user swap through argument-dependent lookup inside the standard library."
+}
