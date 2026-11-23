@@ -1,0 +1,8 @@
+{
+  "refuse": "template-involved",
+  "spec": [
+    "C++ [temp.dep]",
+    "C++ [temp.inst]"
+  ],
+  "notes": "A template calls the method through a dependent receiver; rewriting the template would break its other instantiations."
+}

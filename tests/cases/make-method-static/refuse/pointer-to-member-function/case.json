@@ -1,0 +1,9 @@
+{
+  "refuse": "member-function-pointer",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.unary.op]",
+    "C++ [expr.mptr.oper]"
+  ],
+  "notes": "The type of &Order::total would change from a pointer to member function to a function pointer."
+}

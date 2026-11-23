@@ -1,0 +1,8 @@
+{
+  "refuse": "receiver-captured",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.prim.lambda.capture]"
+  ],
+  "notes": "[=] captures this, so the lambda writes the object; after the change it would capture the receiver parameter by copy."
+}

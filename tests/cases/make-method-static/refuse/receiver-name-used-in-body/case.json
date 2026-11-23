@@ -1,0 +1,7 @@
+{
+  "refuse": "name-collision",
+  "spec": [
+    "C++ [basic.scope.param]"
+  ],
+  "notes": "A local named self would hide the new receiver parameter."
+}

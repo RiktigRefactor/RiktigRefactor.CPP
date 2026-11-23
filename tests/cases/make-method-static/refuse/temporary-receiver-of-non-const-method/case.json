@@ -1,0 +1,9 @@
+{
+  "refuse": "receiver-not-lvalue",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [dcl.init.ref]",
+    "C++ [class.temporary]"
+  ],
+  "notes": "A non-const member can be called on a temporary, but a non-const lvalue reference parameter cannot bind one."
+}

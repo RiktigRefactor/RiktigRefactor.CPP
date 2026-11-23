@@ -1,0 +1,7 @@
+{
+  "refuse": "macro-involved",
+  "spec": [
+    "C++ [cpp.replace]"
+  ],
+  "notes": "A macro calls the method; the tool does not edit macros."
+}

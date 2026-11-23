@@ -1,0 +1,9 @@
+{
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [over.match]",
+    "C++ [over.ics.rank]"
+  ],
+  "notes": "Order::price(order, 1L) called the existing static overload; after the change the new static overload is a better match."
+}

@@ -1,0 +1,8 @@
+{
+  "refuse": "template-involved",
+  "spec": [
+    "C++ [temp.class]",
+    "C++ [temp.mem.func]"
+  ],
+  "notes": "The tool does not change members of templates, whose instantiations it would have to check one by one."
+}

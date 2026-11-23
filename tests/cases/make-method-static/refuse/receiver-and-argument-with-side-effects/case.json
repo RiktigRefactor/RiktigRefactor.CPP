@@ -1,0 +1,8 @@
+{
+  "refuse": "evaluation-order",
+  "spec": [
+    "C++ [expr.call]",
+    "C++ [intro.execution]"
+  ],
+  "notes": "recv.m(arg) evaluates recv before arg, but Type::m(recv, arg) evaluates them in either order; clang happens to keep the order, so the naive result passes, but another compiler may not."
+}

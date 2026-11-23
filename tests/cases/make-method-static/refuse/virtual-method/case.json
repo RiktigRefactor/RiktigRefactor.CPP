@@ -1,0 +1,7 @@
+{
+  "refuse": "virtual-dispatch",
+  "spec": [
+    "C++ [class.virtual]"
+  ],
+  "notes": "A virtual call dispatches on the dynamic type; a static call would not."
+}
