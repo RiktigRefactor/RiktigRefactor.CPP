@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "work"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [temp.dep.candidate]",
+    "C++ [basic.lookup.argdep]"
+  ],
+  "notes": "The change is only visible in the instantiation of the template."
+}

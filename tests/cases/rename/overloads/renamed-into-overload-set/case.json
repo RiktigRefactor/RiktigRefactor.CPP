@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "pick"
+  },
+  "spec": [
+    "C++ [over.match]",
+    "C++ [over.dcl]"
+  ],
+  "notes": "The renamed function joins an overload set without changing any call."
+}

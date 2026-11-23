@@ -1,0 +1,11 @@
+{
+  "options": {
+    "newName": "factor"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.lookup.unqual]",
+    "C++ [class.mfct.non.static]"
+  ]
+}

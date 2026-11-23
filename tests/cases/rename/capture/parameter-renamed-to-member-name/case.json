@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "base"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.scope.param]",
+    "C++ [class.member.lookup]"
+  ],
+  "notes": "The member reference would bind to the renamed parameter."
+}

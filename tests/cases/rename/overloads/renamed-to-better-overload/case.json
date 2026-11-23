@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "pick"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [over.match]",
+    "C++ [over.ics.rank]"
+  ],
+  "notes": "After the rename, the call would choose the existing pick(int)."
+}

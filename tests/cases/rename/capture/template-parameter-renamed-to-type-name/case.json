@@ -1,0 +1,11 @@
+{
+  "options": {
+    "newName": "Item"
+  },
+  "refuse": "would-introduce-errors",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [temp.local]"
+  ],
+  "notes": "Inside the template, the template parameter would hide the global type, so Item::size() would not compile."
+}

@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "inner"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.scope.block]",
+    "C++ [basic.lookup.unqual]"
+  ],
+  "notes": "The reference to the outer local would bind to the inner one."
+}

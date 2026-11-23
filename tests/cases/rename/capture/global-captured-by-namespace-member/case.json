@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "limit"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.lookup.unqual]",
+    "C++ [basic.namespace]"
+  ],
+  "notes": "Renaming the global to the name of a namespace member hides it from code in the namespace."
+}

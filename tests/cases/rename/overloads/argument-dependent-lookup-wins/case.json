@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "describe"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.lookup.argdep]",
+    "C++ [over.match.best]"
+  ],
+  "notes": "Argument-dependent lookup would find lib::describe, a non-template, which beats the renamed template."
+}
