@@ -1,0 +1,22 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Extensionless scripts can't be matched by a file-type glob.
+[{build-and-test,tidy-code}]
+end_of_line = lf
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

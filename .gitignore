@@ -1,0 +1,14 @@
+.ignore/
+
+# CMake build output
+build/
+cmake-build-*/
+
+# compile_commands.json is generated per build directory, except in test cases where the runner writes it
+/compile_commands.json
+
+# Editors
+.vs/
+.vscode/
+.idea/
+*.swp
