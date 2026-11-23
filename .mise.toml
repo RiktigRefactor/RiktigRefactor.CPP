@@ -1,0 +1,6 @@
+[tools]
+dotnet = "latest"
+
+[tasks.mdsnippets]
+description = "Update snippets and the table of contents in markdown files"
+run = ["dotnet tool restore", "dotnet mdsnippets"]

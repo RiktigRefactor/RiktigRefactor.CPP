@@ -9,6 +9,20 @@ When the tool cannot prove a transformation is safe, it refuses with a clear rea
 
 This is the C++ implementation of the [RiktigRefactor specification](https://github.com/RiktigRefactor/riktigrefactor.spec).
 
+<!-- toc -->
+## Contents
+
+  * [What it can do](#what-it-can-do)
+    * [Rename](#rename)
+    * [Extract IIFE](#extract-iife)
+    * [Make method static](#make-method-static)
+    * [Move static member](#move-static-member)
+    * [Move static method to instance method](#move-static-method-to-instance-method)
+    * [Extract object from arguments](#extract-object-from-arguments)
+  * [Using it](#using-it)
+  * [Building and testing](#building-and-testing)
+  * [Contributing](#contributing)<!-- endToc -->
+
 ## What it can do
 
 The tool has these refactorings:
