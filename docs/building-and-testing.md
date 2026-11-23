@@ -1,10 +1,9 @@
 # Building and testing
 
 The tool is pinned to clang 18.
-On Ubuntu 24.04:
+Install [mise](https://mise.jdx.dev/); it provides clang/LLVM 18, cmake and ninja:
 
 ```shell
-sudo apt-get install clang-18 clang-format-18 libclang-18-dev llvm-18-dev cmake ninja-build
 ./build-and-test
 ```
 

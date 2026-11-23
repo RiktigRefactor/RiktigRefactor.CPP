@@ -10,7 +10,7 @@ Run `./tidy-code` to format the code with `clang-format`.
 ## Toolchain
 
 The tool is built on clang LibTooling, pinned to LLVM/clang 18 (`CMakeLists.txt` asks for `Clang 18`).
-On Ubuntu 24.04, install it with `sudo apt-get install clang-18 clang-format-18 libclang-18-dev llvm-18-dev cmake ninja-build`.
+`mise` provides the toolchain (LLVM 18, cmake, ninja) from `.mise.toml`; there is nothing to install by hand except `mise`.
 See [UPDATING_DEPENDENCIES.md](UPDATING_DEPENDENCIES.md) for moving to a newer clang.
 
 ## Test cases
@@ -51,7 +51,7 @@ Always obscure API keys and other secrets, especially in saved screenshots.
 - `gh pr create` is blocked in cloud sessions (it uses GraphQL).
   Open pull requests with `gh api repos/OWNER/REPO/pulls -f title=... -f head=... -f base=main -f body=...`.
 - Cloud sessions reach the network only through an allowlisting proxy.
-  Hosts needed: the Ubuntu archive (for `apt-get`), and LLVM (`apt.llvm.org`, `github.com` for LLVM release downloads).
+  Hosts needed: `github.com` (LLVM release downloads and mise tools) and the mise and dotnet package hosts.
 - Push to `main` with `git -c push.negotiate=true push origin HEAD:main`.
 
 ## After every task

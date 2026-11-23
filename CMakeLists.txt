@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # The tool is pinned to one clang version: its AST and binding behavior is what the tests verify.
 set(RIKTIG_CLANG_VERSION 18)
 find_package(Clang REQUIRED CONFIG
-    HINTS /usr/lib/llvm-${RIKTIG_CLANG_VERSION}/lib/cmake/clang)
+    HINTS $ENV{RIKTIG_LLVM_ROOT}/lib/cmake/clang /usr/lib/llvm-${RIKTIG_CLANG_VERSION}/lib/cmake/clang)
 if(NOT LLVM_VERSION_MAJOR EQUAL RIKTIG_CLANG_VERSION)
     message(FATAL_ERROR "Found LLVM ${LLVM_VERSION}, but this project is pinned to ${RIKTIG_CLANG_VERSION}.")
 endif()
