@@ -12,7 +12,7 @@ The specification defines the correctness model, the refactorings, the JSON prot
 
 ## What it can do
 
-The tool has two refactorings: Rename and Extract IIFE.
+The tool has these refactorings: Rename, Extract IIFE, and Make method static.
 
 ### Rename
 
@@ -58,6 +58,37 @@ It refuses when it can't prove that wrapping keeps behavior, for example when:
 
 After extracting, it re-parses the workspace and checks that the result compiles, that every name binds as before (with the outer variables now binding to the parameters), and that the call has the expression's type and value category.
 
+### Make method static
+
+Make method static turns an instance member function into a static one on the same class, with the receiver as its first parameter:
+
+```cpp
+// Before
+double total(int qty) const { return price * qty; }
+double t = order.total(3);
+double u = p->total(3);
+
+// After
+static double total(const Order &self, int qty) { return self.price * qty; }
+double t = Order::total(order, 3);
+double u = Order::total(*p, 3);
+```
+
+A `const` method takes `const Order &`; a non-`const` one takes `Order &`.
+Uses of members and of `this` in the body go through the receiver parameter (`self` by default; `--receiver-name` changes it), including in `[&]` lambdas.
+Calls from other members pass `*this`.
+
+It refuses when, for example:
+
+- the method is virtual, a template or a member of one, or a template instantiation calls it;
+- the method is used other than by calling it, such as `&Order::total`;
+- a non-`const` method is called on a temporary;
+- a lambda captures `this` by copy or explicitly;
+- the receiver and an argument both may have effects: `recv.m(arg)` evaluates `recv` first, but `Order::m(recv, arg)` evaluates them in either order;
+- the receiver parameter's name is already used in the method.
+
+Passing the members the method uses instead of the receiver (`pass: "members"`) is not implemented yet.
+
 Each refusal has a code, listed in [refusal-codes.md](refusal-codes.md).
 
 See [limitations](https://github.com/RiktigRefactor/riktigrefactor.spec/blob/main/limitations.md) for what is out of scope, such as updating comments and strings.
@@ -80,6 +111,12 @@ Preview an Extract IIFE of the text from line 12, column 19 up to (not including
 
 ```shell
 riktig-cpp extract-iife --workspace build/compile_commands.json --file src/foo.cpp --from 12:19 --to 12:30
+```
+
+Make the method at line 3, column 12 static, naming the receiver `order`:
+
+```shell
+riktig-cpp make-method-static --workspace build/compile_commands.json --file src/order.h --at 3:12 --receiver-name order
 ```
 
 The exit code is 0 on success, 1 when the refactoring is refused, and 2 on an error such as an unknown file.
