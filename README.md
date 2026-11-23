@@ -1,222 +1,166 @@
 # RiktigRefactor.Cpp
 
 [![Build and test](https://github.com/RiktigRefactor/riktigrefactor.cpp/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/RiktigRefactor/riktigrefactor.cpp/actions/workflows/build-and-test.yml)
+![Status: early development](https://img.shields.io/badge/status-early%20development-orange)
 
-Behavior-preserving refactorings for C++, built on clang LibTooling.
-
-*Riktig* (Swedish/Norwegian) means correct.
+Seriously safe behavior-preserving refactorings for C++.
+*Riktig* means "correct" in Swedish/Norwegian.
 When the tool cannot prove a transformation is safe, it refuses with a clear reason instead of guessing.
 
 This is the C++ implementation of the [RiktigRefactor specification](https://github.com/RiktigRefactor/riktigrefactor.spec).
-The specification defines the correctness model, the refactorings, the JSON protocol, and the test format.
 
 ## What it can do
 
-The tool has these refactorings: Rename, Extract IIFE, Make method static, Move static member, and Move static method to instance method.
+The tool has these refactorings:
 
 ### Rename
 
 Rename renames a symbol and every reference to it across every translation unit in `compile_commands.json`, including the headers they include.
-It renames a class with its constructors, destructor, specializations and deduction guides, a function template with its explicit specializations, a virtual member with every override in the workspace, and a declaration with its redeclarations in other translation units.
 
-Before renaming, the tool parses every translation unit and records what every name binds to, including in template instantiations.
-After renaming, it parses them again and checks that every reference binds to the same declaration as before, that overrides and specializations are unchanged, and that the renamed entity does not become the same entity as an existing one in another translation unit.
-It refuses (exit code 1) when, for example:
+#### Before
 
-- a name would be captured by another declaration, or a call would choose another overload, including through argument-dependent lookup in a template instantiation;
-- the change would not compile;
-- the symbol is declared outside the workspace, overrides a member declared there, is `main`, or has C language linkage;
-- a macro mentions the symbol, or the old or new name is a macro, or appears in a skipped `#if` region;
-- the old or new name appears where the tool can't tell what it refers to, such as a dependent name in a template that is never instantiated.
+```cpp
+struct Order {
+    int qty;
+    int total() const { return qty * 2; }
+};
+int t = Order{3}.total();
+```
+
+#### After
+
+```cpp
+struct Order {
+    int quantity;
+    int total() const { return quantity * 2; }
+};
+int t = Order{3}.total();
+```
+
+See more details in [docs/rename.md](docs/rename.md).
 
 ### Extract IIFE
 
-Extract IIFE wraps a selected expression, or whole statements of one block, in an immediately-invoked lambda:
+Extract IIFE wraps a selected expression, or whole statements of one block, in an immediately-invoked lambda.
+
+#### Before
 
 ```cpp
-// Before
 auto total = price * qty;
+```
 
-// After
+#### After
+
+```cpp
 auto total = [](double price, int qty) { return price * qty; }(price, qty);
 ```
 
-Local variables used in the selection become parameters with the same names.
-A variable is passed by value only when it is a scalar that the selection only reads and that the function never aliases (no address taken, no reference bound to it, no lambda capturing it by reference); otherwise it is passed by reference, so writes and object identity are kept.
-Members are reached through `[this]`.
-An lvalue or xvalue expression returns `decltype(auto)`, so assigning to the result or taking its address works as before.
-Selected statements are re-indented one level inside the lambda's braces.
-
-It refuses when it can't prove that wrapping keeps behavior, for example when:
-
-- the selection contains `return`, `break` or `continue` leaving it, `goto`, a label, or `co_await`;
-- the expression creates a temporary that the lambda would destroy earlier, or a selected statement declares a variable whose destructor would run before the rest of its block;
-- something declared in the selected statements is used after them;
-- the expression is a null pointer constant `0`, a function name, or a string literal initializing an array;
-- the selection uses `__func__` or `std::source_location::current()`, a macro, or a variable inside `decltype`;
-- the selection is in a template, a constant expression, or a lambda that captures the variables it uses.
-
-After extracting, it re-parses the workspace and checks that the result compiles, that every name binds as before (with the outer variables now binding to the parameters), and that the call has the expression's type and value category.
+See more details in [docs/extract-iife.md](docs/extract-iife.md).
 
 ### Make method static
 
-Make method static turns an instance member function into a static one on the same class, with the receiver as its first parameter:
+Make method static turns an instance member function into a static one, with the receiver as its first parameter.
+
+#### Before
 
 ```cpp
-// Before
 double total(int qty) const { return price * qty; }
 double t = order.total(3);
-double u = p->total(3);
-
-// After
-static double total(const Order &self, int qty) { return self.price * qty; }
-double t = Order::total(order, 3);
-double u = Order::total(*p, 3);
 ```
 
-A `const` method takes `const Order &`; a non-`const` one takes `Order &`.
-Uses of members and of `this` in the body go through the receiver parameter (`self` by default; `--receiver-name` changes it), including in `[&]` lambdas.
-Calls from other members pass `*this`.
+#### After
 
-It refuses when, for example:
+```cpp
+static double total(const Order &self, int qty) { return self.price * qty; }
+double t = Order::total(order, 3);
+```
 
-- the method is virtual, a template or a member of one, or a template instantiation calls it;
-- the method is used other than by calling it, such as `&Order::total`;
-- a non-`const` method is called on a temporary;
-- a lambda captures `this` by copy or explicitly;
-- the receiver and an argument both may have effects: `recv.m(arg)` evaluates `recv` first, but `Order::m(recv, arg)` evaluates them in either order;
-- the receiver parameter's name is already used in the method.
-
-Passing the members the method uses instead of the receiver (`pass: "members"`) is not implemented yet.
+See more details in [docs/make-method-static.md](docs/make-method-static.md).
 
 ### Move static member
 
-Move static member moves a static member function or `constexpr` static data member to another class, or a namespace-scope function or `constexpr` variable to another namespace, and updates every reference:
+Move static member moves a static member function or `constexpr` static data member to another class, or a namespace-scope function or `constexpr` variable to another namespace, and updates every reference.
+
+#### Before
 
 ```cpp
-// Before
 struct Order {
-    static double total(const Order &self, int qty) { return self.quantity * qty * rate; }
+    static double total(const Order &self, int qty);
 };
 double t = Order::total(order, 3);
+```
 
-// After (--target Pricing)
+#### After
+
+```cpp
 struct Pricing {
-  public:
-    static double total(const Order &self, int qty) { return self.quantity * qty * Order::rate; }
+    static double total(const Order &self, int qty);
 };
 double t = Pricing::total(order, 3);
 ```
 
-The declaration moves to the end of the target class, under its current access specifier, or to the end of the target namespace's block in the same file.
-An out-of-line definition stays where it is, with the target as its qualifier.
-Names in the moved code that were found through the source's scope are qualified, so they still name the same declarations.
-Together with Make method static, this moves a method to another class.
-
-It refuses when, for example:
-
-- the target, or a base class of it, already has a member with that name (other than overloads that keep every call's choice);
-- a call would choose another overload after the move;
-- a variable is not `constexpr`, so when it is initialized would depend on where it is defined;
-- a reference goes through an expression with an effect, such as `make().total()`;
-- the moved code would not compile in the target, for example because it uses a private member of the source or a name declared after the target;
-- the move is between a class and a namespace (not supported yet).
+See more details in [docs/move-static-member.md](docs/move-static-member.md).
 
 ### Move static method to instance method
 
-Move static method to instance method is the inverse of Make method static: a static member function's parameter that is a reference to its own class becomes the receiver:
+Move static method to instance method is the inverse of Make method static: a parameter of a static member function that is a reference to its own class becomes the receiver.
+
+#### Before
 
 ```cpp
-// Before
 static double total(const Order &order, int qty) { return order.price * qty; }
 double t = Order::total(order, 3);
+```
 
-// After (--receiver order)
+#### After
+
+```cpp
 double total(int qty) const { return price * qty; }
 double t = order.total(3);
 ```
 
-A `const` reference parameter gives a `const` member function.
-`order.member` becomes `member`, and other uses of the parameter become `*this`.
-A call through a pointer, `Order::total(*p, 3)`, becomes `p->total(3)`, and a recursive call `total(*order.next, qty)` becomes `next->total(qty)`.
-To use a parameter of another class, first move the function into that class with Move static member.
+See more details in [docs/move-static-method-to-instance-method.md](docs/move-static-method-to-instance-method.md).
 
-It refuses when, for example:
+### Extract object from arguments
 
-- the receiver is not the first argument, or it and another argument both may have effects, since the receiver would be evaluated first;
-- the parameter is a pointer or a copy;
-- a call converts its argument to the class, such as through a converting constructor;
-- a lambda captures the parameter by copy;
-- the function's address is taken;
-- the new member function would override a virtual function of a base class.
+Extract object from arguments groups adjacent parameters of a function into a new aggregate type.
 
-Each refusal has a code, listed in [refusal-codes.md](refusal-codes.md).
+#### Before
 
-See [limitations](https://github.com/RiktigRefactor/riktigrefactor.spec/blob/main/limitations.md) for what is out of scope, such as updating comments and strings.
-Names captured as strings change with the rename, by design: `__func__`, `typeid(T).name()`, and `std::source_location::function_name()` report the new name.
+```cpp
+int total(int base, int count, int step);
+int r = total(1, 3, 2);
+```
 
-## Command line
+#### After
+
+```cpp
+struct Steps {
+    int count;
+    int step;
+};
+
+int total(int base, Steps steps);
+int r = total(1, Steps{.count = 3, .step = 2});
+```
+
+See more details in [docs/extract-object-from-arguments.md](docs/extract-object-from-arguments.md).
+
+## Using it
 
 ```shell
 riktig-cpp rename --workspace build/compile_commands.json --file src/foo.cpp --at 12:5 --new-name count
 ```
 
-Positions are 1-based, and columns count Unicode scalar values.
-`--workspace` accepts `compile_commands.json` or the directory holding it; the tool needs it to resolve includes and macros, and refuses to guess without it.
-CMake writes it with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`.
+See [the command line](docs/command-line.md) for the options, exit codes and refusal codes.
 
-- `--apply` writes the changes to disk.
-- `--json` prints the result using the shared protocol, without the diff.
-
-Preview an Extract IIFE of the text from line 12, column 19 up to (not including) column 30:
+## Building and testing
 
 ```shell
-riktig-cpp extract-iife --workspace build/compile_commands.json --file src/foo.cpp --from 12:19 --to 12:30
-```
-
-Make the method at line 3, column 12 static, naming the receiver `order`:
-
-```shell
-riktig-cpp make-method-static --workspace build/compile_commands.json --file src/order.h --at 3:12 --receiver-name order
-```
-
-Move the static member at line 9, column 19 to the class `shop::Pricing`:
-
-```shell
-riktig-cpp move-static-member --workspace build/compile_commands.json --file src/order.h --at 9:19 --target shop::Pricing
-```
-
-Make the parameter `order` of the static method at line 4, column 19 its receiver:
-
-```shell
-riktig-cpp move-to-instance-method --workspace build/compile_commands.json --file src/order.h --at 4:19 --receiver order
-```
-
-The exit code is 0 on success, 1 when the refactoring is refused, and 2 on an error such as an unknown file.
-
-There are no release binaries yet; build from a clone and run `build/riktig-cpp`.
-
-## Build and test
-
-The tool is pinned to clang 18.
-On Ubuntu 24.04:
-
-```shell
-sudo apt-get install clang-18 clang-format-18 libclang-18-dev llvm-18-dev cmake ninja-build
 ./build-and-test
 ```
 
-`build-and-test` checks formatting, builds, and runs every test case; `build-and-test.cmd` does the same on Windows through Git for Windows' Bash, but the build is only tested on Linux.
-Run `./tidy-code` to format the code.
-See [UPDATING_DEPENDENCIES.md](UPDATING_DEPENDENCIES.md) for moving to a newer clang.
-
-Test cases live in `tests/cases`, in the [format defined by the specification](https://github.com/RiktigRefactor/riktigrefactor.spec/blob/main/test-format.md).
-Every input and expected program is compiled and run, and edge cases must fail under a deliberately naive implementation.
-
-### Citing the C++ standard
-
-Every test case lists the sections of the C++ standard it covers in the `spec` field of its `case.json`, by stable name, written as `C++ [<name>]`, for example `C++ [over.match]`.
-Stable names follow the C++20 standard (ISO/IEC 14882:2020) as listed at [eel.is/c++draft](https://eel.is/c++draft/).
+See [building and testing](docs/building-and-testing.md) for the toolchain, the test cases, and how they cite the C++ standard.
 
 ## Contributing
 
