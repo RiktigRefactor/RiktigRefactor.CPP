@@ -29,6 +29,7 @@ add_library(riktigrefactor-cpp STATIC
     src/riktig/Independence.cpp
     src/riktig/MakeMethodStatic.cpp
     src/riktig/MoveStaticMember.cpp
+    src/riktig/MoveToInstanceMethod.cpp
     src/riktig/Protocol.cpp
     src/riktig/RawTokens.cpp
     src/riktig/Rename.cpp

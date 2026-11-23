@@ -50,6 +50,10 @@ inline constexpr const char *DynamicInitialization = "dynamic-initialization";
 inline constexpr const char *UnsupportedMember = "unsupported-member";
 inline constexpr const char *DiscardedExpression = "discarded-expression";
 
+inline constexpr const char *InvalidParameter = "invalid-parameter";
+inline constexpr const char *UnsupportedParameter = "unsupported-parameter";
+inline constexpr const char *ReceiverConversion = "receiver-conversion";
+
 inline constexpr const char *InternalVerificationFailed = "internal-verification-failed";
 
 } // namespace riktig::refusal_codes

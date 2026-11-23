@@ -511,8 +511,17 @@ BindingExpectations EditPlan::expectations() const {
     expectations.relocate = [this](const FileOffset &before) { return relocated(before); };
     // Text that a replacement deletes, and that is not copied elsewhere, loses its bindings.
     expectations.isDropped = [this](const BindingKey &key, const DeclIdentity &) {
-        if (relocated(key.location)) {
-            return false;
+        for (const auto &relocation : relocations_) {
+            if (relocation.file == key.location.file && relocation.from <= key.location.offset &&
+                key.location.offset < relocation.from + relocation.length) {
+                unsigned relative = key.location.offset - relocation.from;
+                for (const auto &inner : relocation.innerEdits) {
+                    if (inner.offset <= relative && relative < inner.offset + inner.length) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
         auto found = edits_.replacements().find(key.location.file);
         if (found == edits_.replacements().end()) {

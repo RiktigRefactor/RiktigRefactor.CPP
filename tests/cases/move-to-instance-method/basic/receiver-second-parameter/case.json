@@ -1,0 +1,11 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "spec": [
+    "C++ [class.mfct.non.static]",
+    "C++ [class.this]",
+    "C++ [expr.call]"
+  ],
+  "notes": "A non-const reference receiver that is the second parameter; the body passes the receiver to a function, which gets *this."
+}

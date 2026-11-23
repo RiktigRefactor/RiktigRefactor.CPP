@@ -1,6 +1,7 @@
 #include "ExtractIife.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
+#include "MoveToInstanceMethod.h"
 #include "Rename.h"
 #include "Results.h"
 #include "Workspace.h"
@@ -28,6 +29,7 @@ const char *usage = R"(Usage:
   riktig-cpp extract-iife --workspace <compile_commands.json> --file <file> --from <line>:<column> --to <line>:<column> [--apply] [--json]
   riktig-cpp make-method-static --workspace <compile_commands.json> --file <file> --at <line>:<column> [--receiver-name <name>] [--apply] [--json]
   riktig-cpp move-static-member --workspace <compile_commands.json> --file <file> --at <line>:<column> --target <qualified name> [--apply] [--json]
+  riktig-cpp move-to-instance-method --workspace <compile_commands.json> --file <file> --at <line>:<column> --receiver <parameter> [--apply] [--json]
 
 The workspace is a compile_commands.json file, or the directory holding it.
 Positions are 1-based, and columns count Unicode scalar values; --to is exclusive.
@@ -202,6 +204,16 @@ int main(int argc, char **argv) {
             return ExitError;
         }
         return report(*workspace, moveStaticMember(*workspace, MoveStaticMemberRequest{file, *at, options["target"]}),
+                      json, apply);
+    }
+    if (command == "move-to-instance-method") {
+        auto at = parsePosition(options["at"]);
+        if (!at || options["receiver"].empty()) {
+            llvm::errs() << usage;
+            return ExitError;
+        }
+        return report(*workspace,
+                      moveToInstanceMethod(*workspace, MoveToInstanceMethodRequest{file, *at, options["receiver"]}),
                       json, apply);
     }
     llvm::errs() << "Unknown command " << command << "\n" << usage;
