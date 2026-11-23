@@ -1,0 +1,12 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "receiver-conversion",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.conv.ctor]",
+    "C++ [over.best.ics]"
+  ],
+  "notes": "The argument 5 becomes an Order through a converting constructor; 5.total() is not a call at all."
+}

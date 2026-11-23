@@ -1,0 +1,11 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.virtual]"
+  ],
+  "notes": "The new const member function has the signature of a virtual function of the base, so it would override it."
+}

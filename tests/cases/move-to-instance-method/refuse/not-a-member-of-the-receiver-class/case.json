@@ -1,0 +1,10 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "unsupported-target",
+  "spec": [
+    "C++ [class.mfct]"
+  ],
+  "notes": "The function must be a static member of the receiver class; Move static member brings it there."
+}

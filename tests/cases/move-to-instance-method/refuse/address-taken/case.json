@@ -1,0 +1,11 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "member-function-pointer",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.unary.op]"
+  ],
+  "notes": "&Order::total would become a pointer to member function."
+}

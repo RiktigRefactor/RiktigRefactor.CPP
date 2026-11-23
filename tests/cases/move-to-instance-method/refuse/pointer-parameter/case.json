@@ -1,0 +1,10 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "unsupported-parameter",
+  "spec": [
+    "C++ [class.this]"
+  ],
+  "notes": "A pointer may be null, and a call through a null this is undefined."
+}

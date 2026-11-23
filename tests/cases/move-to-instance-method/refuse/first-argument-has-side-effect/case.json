@@ -1,0 +1,12 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "evaluation-order",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.call]",
+    "C++ [intro.execution]"
+  ],
+  "notes": "Order::add(next(), pick()) evaluates next() first under clang; pick().add(next()) evaluates pick() first."
+}

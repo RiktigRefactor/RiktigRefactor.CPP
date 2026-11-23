@@ -1,0 +1,11 @@
+{
+  "options": {
+    "receiver": "order"
+  },
+  "refuse": "receiver-captured",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.prim.lambda.capture]"
+  ],
+  "notes": "[=] copies the object the reference parameter names; after the change it would capture this and see later changes."
+}
