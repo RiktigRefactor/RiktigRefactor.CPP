@@ -1,0 +1,27 @@
+name: Tidy Code
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  tidy-code:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y clang-format-18
+      - run: ./tidy-code
+      - name: Check for changes
+        id: git-status
+        run: echo "changed=$(git status --porcelain | wc -l)" >> "$GITHUB_OUTPUT"
+      - name: Git Commit and Push
+        if: steps.git-status.outputs.changed != '0'
+        run: |
+          git config user.name "Github Actions"
+          git config user.email actions@github.com
+          git add -A
+          git commit -m ". a Tidy code"
+          git pull --rebase
+          git push
