@@ -238,6 +238,13 @@ class SelectionAnalyzer : public RecursiveASTVisitor<SelectionAnalyzer> {
                 needsThis = true;
             }
         }
+        auto initializer = lambda->capture_init_begin();
+        for (const auto &capture : lambda->captures()) {
+            if (capture.capturesVariable() && cast<VarDecl>(capture.getCapturedVar())->isInitCapture()) {
+                TraverseStmt(*initializer);
+            }
+            ++initializer;
+        }
         ++nestedFunctionDepth_;
         bool result = TraverseStmt(lambda->getBody());
         --nestedFunctionDepth_;
@@ -349,7 +356,8 @@ class SelectionAnalyzer : public RecursiveASTVisitor<SelectionAnalyzer> {
                                        "The selection observes the name or location of its function, such as with "
                                        "`__func__` or `std::source_location::current()`, which would change.",
                                        location);
-        } else if (isExpression_ && isa<MaterializeTemporaryExpr, CXXBindTemporaryExpr>(statement)) {
+        } else if (isExpression_ && (isa<CXXBindTemporaryExpr>(statement) ||
+                                     (isa<MaterializeTemporaryExpr>(statement) && !resultCannotReferToTemporary()))) {
             planner_.breakPrecondition(codes::TemporaryLifetime,
                                        "The selection creates a temporary object, which would be destroyed when the "
                                        "lambda returns instead of at the end of the full-expression.",
@@ -361,8 +369,18 @@ class SelectionAnalyzer : public RecursiveASTVisitor<SelectionAnalyzer> {
     std::vector<const VarDecl *> variables;
     std::set<const VarDecl *> notOnlyRead;
     bool needsThis = false;
+    const Expr *selectedExpression = nullptr;
 
   private:
+    // A temporary with a trivial destructor is destroyed unobservably, unless the result can point or refer to it.
+    bool resultCannotReferToTemporary() const {
+        if (!selectedExpression || !selectedExpression->isPRValue()) {
+            return false;
+        }
+        auto type = selectedExpression->getType();
+        return type->isVoidType() || type->isArithmeticType() || type->isEnumeralType();
+    }
+
     template <class Traverse> bool unevaluated(Traverse traverse) {
         ++unevaluatedDepth_;
         bool result = traverse();
@@ -706,6 +724,7 @@ std::optional<std::string> IifePlanner::typeForParameter(const VarDecl *variable
 
 void IifePlanner::analyzeVariables() {
     SelectionAnalyzer analyzer(*this, *context_, expression_ != nullptr);
+    analyzer.selectedExpression = expression_;
     if (expression_) {
         analyzer.TraverseStmt(const_cast<Expr *>(expression_));
     } else {
@@ -738,7 +757,10 @@ void IifePlanner::analyzeVariables() {
 
 std::optional<RefusalReason> IifePlanner::analyzeSelection() {
     if (auto refusal = findSelection()) {
-        return refusal;
+        if (!file_.empty() && end_ > start_) {
+            checkPreprocessor();
+        }
+        return brokenPrecondition_ ? brokenPrecondition_ : refusal;
     }
     checkPreprocessor();
     checkContext();

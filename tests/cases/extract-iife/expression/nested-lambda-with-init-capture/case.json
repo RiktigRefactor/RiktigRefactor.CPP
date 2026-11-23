@@ -1,0 +1,7 @@
+{
+  "spec": [
+    "C++ [expr.prim.lambda.capture]",
+    "C++ [class.temporary]"
+  ],
+  "notes": "The init-capture reads an outer variable, which becomes a parameter; the closure temporary has a trivial destructor and the result is an int, so nothing can refer to it."
+}
