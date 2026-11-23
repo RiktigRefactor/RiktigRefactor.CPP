@@ -18,7 +18,7 @@ A new code is listed in the release notes.
 | `binding-would-change` | After the change, a reference would bind to a different declaration, a declaration would override or specialize something else, or a new binding would appear. |
 | `macro-involved` | Rename: a macro refers to the symbol, the old or new name is a macro, or a name is used in a macro argument or a preprocessor directive. Extract IIFE: the selection uses a macro or contains a directive. |
 | `preprocessor-region` | The old or new name appears in a region that conditional compilation skips, or the Extract IIFE selection contains one. |
-| `unsupported-reference` | The old or new name appears where the tool does not know what it refers to, such as a dependent name in a template that is never instantiated. |
+| `unsupported-reference` | The old or new name appears where the tool does not know what it refers to, such as a dependent name in a template that is never instantiated; or a call the tool can't rewrite, such as one through an overloaded `operator->` or one nested in another rewritten call's receiver. |
 | `reference-outside-workspace` | Code outside the workspace refers to the symbol by name, for example a standard algorithm calling a user `swap` through argument-dependent lookup. |
 | `invalid-selection` | Extract IIFE: the selection is not exactly one expression or whole statements of one block, or is a braced initializer list. |
 | `unsupported-context` | Extract IIFE: the selection is not in a function body, is in a template or generic lambda, in a constant expression (such as a `case` label or `if constexpr` condition), in the initializer of a static or `constexpr` variable, or has a literal spanning lines that re-indenting would change. |
@@ -33,4 +33,15 @@ A new code is listed in the release notes.
 | `function-name-observed` | Extract IIFE: the selection uses `__func__`, `__PRETTY_FUNCTION__`, or `std::source_location::current()`, whose value would name the lambda. |
 | `unevaluated-operand` | Extract IIFE: the selection is an unevaluated operand, or uses a variable crossing the boundary in one (such as `decltype`), where the parameter's reference type would show. |
 | `bit-field` | Extract IIFE: the expression is a bit-field, which a lambda can't return by reference. |
+| `not-an-instance-method` | Make method static: the symbol is not an instance member function named by an identifier (a constructor, destructor, conversion function, operator, or static member). |
+| `virtual-dispatch` | Make method static: the method is virtual or overrides another, so calls dispatch on the receiver's dynamic type. |
+| `template-involved` | The function is a template or a member of one, or a template instantiation refers to it; other instantiations could call something else. |
+| `unsupported-method` | Make method static: the method is `volatile`, ref-qualified, deleted, defaulted, a member of an unnamed class, named in a friend declaration, starts with an attribute, or its parameter list is not written out. |
+| `member-function-pointer` | Make method static: the method is used other than by calling it, such as `&Order::total`, whose type would change. |
+| `receiver-not-lvalue` | Make method static: a non-`const` method is called on a temporary, which a non-`const` reference parameter can't bind. |
+| `evaluation-order` | The change would let expressions be evaluated in another order, and the tool can't show they are independent. |
+| `receiver-captured` | Make method static: a lambda in the method captures `this` explicitly or by copy. |
+| `declared-outside-workspace` | The function is declared outside the workspace. |
+| `name-collision` | A new name (such as the receiver parameter) is already used where it would be declared. |
+| `unsupported-option` | An option value the tool does not implement yet, such as Make method static's `pass: "members"`. |
 | `internal-verification-failed` | The tool's own check of its result failed. This is a bug in the tool; please report it. |

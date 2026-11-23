@@ -1,0 +1,8 @@
+{
+  "spec": [
+    "C++ [class.static.mfct]",
+    "C++ [class.this]",
+    "C++ [expr.ref]"
+  ],
+  "notes": "The spec example: a const method becomes static with a const reference receiver; calls through an object and a pointer."
+}

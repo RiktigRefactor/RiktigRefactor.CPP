@@ -1,0 +1,9 @@
+{
+  "options": {
+    "receiverName": "order"
+  },
+  "spec": [
+    "C++ [class.static.mfct]"
+  ],
+  "notes": "The receiver parameter takes the requested name."
+}

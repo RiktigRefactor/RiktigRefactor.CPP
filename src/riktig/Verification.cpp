@@ -24,22 +24,39 @@ static std::optional<BindingDifference> compareTranslationUnit(const Translation
                                                                const TranslationUnitBindings &after,
                                                                const EditMap &edits,
                                                                const BindingExpectations &expectations) {
+    auto mapLocation = [&](const FileOffset &location) {
+        if (expectations.relocate) {
+            if (auto relocated = expectations.relocate(location)) {
+                return *relocated;
+            }
+        }
+        return edits.map(location);
+    };
     BindingTable expected;
     for (const auto &[key, identities] : before.bindings) {
-        BindingKey movedKey{edits.map(key.location), key.role};
-        auto &expectedIdentities = expected[movedKey];
+        BindingKey movedKey{mapLocation(key.location), key.role};
         for (const auto &identity : identities) {
+            if (expectations.isDropped && expectations.isDropped(key, identity)) {
+                continue;
+            }
+            auto &expectedIdentities = expected[movedKey];
             std::optional<DeclIdentity> substitute;
             if (expectations.substitute) {
                 substitute = expectations.substitute(key, identity);
             }
-            expectedIdentities.insert(substitute ? *substitute : moved(edits, identity));
+            if (!substitute && !identity.location.file.empty()) {
+                substitute = DeclIdentity{mapLocation(identity.location), identity.tag};
+            }
+            expectedIdentities.insert(substitute ? *substitute : identity);
         }
     }
     for (const auto &[key, identities] : after.bindings) {
         auto found = expected.find(key);
         if (found == expected.end()) {
             if (expectations.isNew && expectations.isNew(key)) {
+                continue;
+            }
+            if (expectations.isExpectedNew && expectations.isExpectedNew(key, identities)) {
                 continue;
             }
             return BindingDifference{key.location, "a new " + key.role + " binding to " + describe(identities)};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ExtractIife.h"
+#include "MakeMethodStatic.h"
 #include "Protocol.h"
 #include "Rename.h"
 #include "Workspace.h"
@@ -11,5 +12,6 @@ namespace riktig {
 // verification. Edge-case tests must fail under them, which proves their assertions can detect a behavior change.
 RefactoringResult naiveRename(const Workspace &workspace, const RenameRequest &request);
 RefactoringResult naiveExtractIife(const Workspace &workspace, const ExtractIifeRequest &request);
+RefactoringResult naiveMakeMethodStatic(const Workspace &workspace, const MakeMethodStaticRequest &request);
 
 } // namespace riktig

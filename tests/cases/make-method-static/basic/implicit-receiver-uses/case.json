@@ -1,0 +1,8 @@
+{
+  "spec": [
+    "C++ [class.this]",
+    "C++ [class.mfct.non.static]",
+    "C++ [expr.prim.lambda.capture]"
+  ],
+  "notes": "Unqualified members, calls to other members, this as a value, *this, this->, a [&] lambda, a recursive call, and a call from another member all use the receiver parameter or *this."
+}

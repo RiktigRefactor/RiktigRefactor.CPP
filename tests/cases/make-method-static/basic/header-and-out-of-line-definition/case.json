@@ -1,0 +1,9 @@
+{
+  "spec": [
+    "C++ [class.static.mfct]",
+    "C++ [class.mfct]",
+    "C++ [basic.def.odr]",
+    "C++ [namespace.def]"
+  ],
+  "notes": "The declaration in a header gains static, the out-of-line definition keeps its qualified name, and calls in other translation units and namespaces are qualified."
+}

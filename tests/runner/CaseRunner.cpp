@@ -224,6 +224,18 @@ RefactoringResult runRefactoring(const CaseDefinition &definition, const Markers
                                    positionOfOffset(text, markers.end)};
         return naive ? naiveExtractIife(*workspace, request) : extractIife(*workspace, request);
     }
+    auto text = readFile(workspaceDirectory + "/" + markers.file);
+    auto cursor = positionOfOffset(text, markers.start);
+    if (definition.refactoring == "make-method-static") {
+        MakeMethodStaticRequest request{markers.file, cursor};
+        if (auto receiverName = definition.options.getString("receiverName")) {
+            request.receiverName = receiverName->str();
+        }
+        if (auto pass = definition.options.getString("pass")) {
+            request.pass = pass->str();
+        }
+        return naive ? naiveMakeMethodStatic(*workspace, request) : makeMethodStatic(*workspace, request);
+    }
     throw Failure{"Unknown refactoring " + definition.refactoring};
 }
 

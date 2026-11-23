@@ -31,6 +31,18 @@ inline constexpr const char *FunctionNameObserved = "function-name-observed";
 inline constexpr const char *UnevaluatedOperand = "unevaluated-operand";
 inline constexpr const char *BitField = "bit-field";
 
+inline constexpr const char *NotAnInstanceMethod = "not-an-instance-method";
+inline constexpr const char *VirtualDispatch = "virtual-dispatch";
+inline constexpr const char *TemplateInvolved = "template-involved";
+inline constexpr const char *UnsupportedMethod = "unsupported-method";
+inline constexpr const char *MemberFunctionPointer = "member-function-pointer";
+inline constexpr const char *ReceiverNotLvalue = "receiver-not-lvalue";
+inline constexpr const char *EvaluationOrder = "evaluation-order";
+inline constexpr const char *ReceiverCaptured = "receiver-captured";
+inline constexpr const char *DeclaredOutsideWorkspace = "declared-outside-workspace";
+inline constexpr const char *NameCollision = "name-collision";
+inline constexpr const char *UnsupportedOption = "unsupported-option";
+
 inline constexpr const char *InternalVerificationFailed = "internal-verification-failed";
 
 } // namespace riktig::refusal_codes

@@ -1,0 +1,8 @@
+{
+  "spec": [
+    "C++ [class.derived]",
+    "C++ [conv.ptr]",
+    "C++ [dcl.init.ref]"
+  ],
+  "notes": "A call on a derived object binds the receiver parameter through a derived-to-base conversion; a qualified call from a derived member becomes a call with *this."
+}
