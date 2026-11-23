@@ -43,7 +43,11 @@ target_include_directories(riktigrefactor-cpp PUBLIC src/riktig)
 target_include_directories(riktigrefactor-cpp SYSTEM PUBLIC ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
 target_compile_definitions(riktigrefactor-cpp PRIVATE
     RIKTIG_CLANG_RESOURCE_DIR="${LLVM_LIBRARY_DIR}/clang/${LLVM_VERSION_MAJOR}")
-target_link_libraries(riktigrefactor-cpp PUBLIC clang-cpp LLVM)
+target_link_libraries(riktigrefactor-cpp PUBLIC clang-cpp)
+# Distro packages ship libLLVM as a shared library; the release tarballs fold LLVM into libclang-cpp instead.
+if(TARGET LLVM)
+    target_link_libraries(riktigrefactor-cpp PUBLIC LLVM)
+endif()
 
 add_executable(riktig-cpp src/cli/main.cpp)
 target_link_libraries(riktig-cpp PRIVATE riktigrefactor-cpp)
