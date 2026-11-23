@@ -490,6 +490,24 @@ std::optional<RefusalReason> checkEveryMentionIsUnderstood(const Workspace &work
                 understood =
                     understood || unit.namedAtToken.count(location) || unit.namedAtTokenInMacro.count(location);
             }
+            for (const auto &unit : units) {
+                if (understood) {
+                    break;
+                }
+                if (auto expansions = unit.macroExpansionRanges.find(file);
+                    expansions != unit.macroExpansionRanges.end()) {
+                    for (const auto &[begin, end] : expansions->second) {
+                        if (begin <= identifier.offset && identifier.offset < end) {
+                            refusal = makeRefusal(codes::MacroInvolved,
+                                                  "`" + identifier.text.str() +
+                                                      "` is an argument of a macro, which may stringize it or "
+                                                      "paste it into another token.",
+                                                  range);
+                            return;
+                        }
+                    }
+                }
+            }
             if (!understood) {
                 refusal = makeRefusal(codes::UnsupportedReference,
                                       "The tool does not know what `" + identifier.text.str() +

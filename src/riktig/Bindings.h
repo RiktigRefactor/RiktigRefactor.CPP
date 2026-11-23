@@ -52,6 +52,8 @@ struct TranslationUnitBindings {
     std::vector<const clang::NamedDecl *> declarations;
     std::set<std::string> workspaceFiles;
     std::map<std::string, std::vector<std::pair<unsigned, unsigned>>> skippedRanges;
+    // Macro invocations written in workspace files, including their arguments.
+    std::map<std::string, std::vector<std::pair<unsigned, unsigned>>> macroExpansionRanges;
     std::set<std::string> macroNames;
 };
 

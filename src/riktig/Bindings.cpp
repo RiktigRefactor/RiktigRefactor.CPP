@@ -423,6 +423,16 @@ void collectPreprocessorFacts(const Workspace &workspace, ASTUnit &unit, Transla
                 out.skippedRanges[begin->file].emplace_back(begin->offset, end->offset);
             }
         }
+        for (auto *entity : *record) {
+            if (auto *expansion = dyn_cast_or_null<MacroExpansion>(entity)) {
+                auto range = expansion->getSourceRange();
+                auto begin = fileOffsetOf(sourceManager, sourceManager.getExpansionLoc(range.getBegin()));
+                auto end = fileOffsetOf(sourceManager, sourceManager.getExpansionLoc(range.getEnd()));
+                if (begin && end && begin->file == end->file && workspace.contains(begin->file)) {
+                    out.macroExpansionRanges[begin->file].emplace_back(begin->offset, end->offset + 1);
+                }
+            }
+        }
     }
     for (auto it = sourceManager.fileinfo_begin(); it != sourceManager.fileinfo_end(); ++it) {
         llvm::SmallString<256> path(it->first.getName());

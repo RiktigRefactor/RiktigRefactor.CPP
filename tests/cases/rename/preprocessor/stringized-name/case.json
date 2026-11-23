@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "total"
+  },
+  "refuse": "macro-involved",
+  "spec": [
+    "C++ [cpp.stringize]"
+  ],
+  "notes": "The macro turns the name into a string; the tool cannot tell whether a rename should change it."
+}

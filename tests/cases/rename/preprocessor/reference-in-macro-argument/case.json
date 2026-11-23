@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "total"
+  },
+  "refuse": "macro-involved",
+  "spec": [
+    "C++ [cpp.replace]"
+  ],
+  "notes": "A macro could stringize or paste its argument."
+}

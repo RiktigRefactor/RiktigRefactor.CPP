@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "total"
+  },
+  "refuse": "preprocessor-region",
+  "spec": [
+    "C++ [cpp.cond]"
+  ],
+  "notes": "The skipped region could refer to the symbol in another configuration."
+}
