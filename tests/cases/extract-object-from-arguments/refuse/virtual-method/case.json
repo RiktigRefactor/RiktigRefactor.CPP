@@ -1,0 +1,13 @@
+{
+  "options": {
+    "parameters": [
+      "price"
+    ],
+    "typeName": "Price"
+  },
+  "refuse": "virtual-dispatch",
+  "spec": [
+    "C++ [class.virtual]"
+  ],
+  "notes": "The tool does not change a hierarchy of overrides together."
+}

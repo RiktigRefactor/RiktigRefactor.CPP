@@ -1,0 +1,16 @@
+{
+  "options": {
+    "parameters": [
+      "price",
+      "qty"
+    ],
+    "typeName": "QuoteLine"
+  },
+  "refuse": "would-introduce-errors",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [dcl.init.list]",
+    "C++ [conv.fpint]"
+  ],
+  "notes": "2.5 converts to int as an argument, but narrowing is ill-formed in a braced initializer."
+}

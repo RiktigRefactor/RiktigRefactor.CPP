@@ -1,0 +1,15 @@
+{
+  "options": {
+    "parameters": [
+      "price",
+      "qty"
+    ],
+    "typeName": "QuoteLine"
+  },
+  "refuse": "evaluation-order",
+  "spec": [
+    "C++ [expr.call]",
+    "C++ [dcl.init.list]"
+  ],
+  "notes": "Function arguments are indeterminately sequenced but a braced initializer runs left to right, which narrows the allowed orders; clang already evaluates arguments left to right, so the naive result passes."
+}

@@ -1,0 +1,16 @@
+{
+  "options": {
+    "parameters": [
+      "price",
+      "qty"
+    ],
+    "typeName": "QuoteLine"
+  },
+  "refuse": "member-function-pointer",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [conv.func]",
+    "C++ [dcl.fct]"
+  ],
+  "notes": "A pointer to the function has its type, which would change."
+}

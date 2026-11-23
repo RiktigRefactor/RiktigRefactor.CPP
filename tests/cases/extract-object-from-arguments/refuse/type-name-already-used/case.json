@@ -1,0 +1,14 @@
+{
+  "options": {
+    "parameters": [
+      "price"
+    ],
+    "typeName": "Price"
+  },
+  "refuse": "name-collision",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.scope.declarative]"
+  ],
+  "notes": "A Price already exists, which the new type would collide with."
+}

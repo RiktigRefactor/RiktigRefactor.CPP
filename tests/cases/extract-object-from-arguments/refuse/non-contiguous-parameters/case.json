@@ -1,0 +1,14 @@
+{
+  "options": {
+    "parameters": [
+      "price",
+      "qty"
+    ],
+    "typeName": "QuoteLine"
+  },
+  "refuse": "non-contiguous-parameters",
+  "spec": [
+    "C++ [dcl.fct]"
+  ],
+  "notes": "Grouping parameters that are not next to each other would move the arguments between them."
+}

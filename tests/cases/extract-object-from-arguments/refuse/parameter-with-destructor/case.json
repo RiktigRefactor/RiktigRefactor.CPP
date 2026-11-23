@@ -1,0 +1,14 @@
+{
+  "options": {
+    "parameters": [
+      "log"
+    ],
+    "typeName": "Options"
+  },
+  "refuse": "unsupported-parameter",
+  "spec": [
+    "C++ [class.dtor]",
+    "C++ [expr.call]"
+  ],
+  "notes": "A parameter and a member are destroyed at different points."
+}
