@@ -128,8 +128,15 @@ static std::string implicitRole(const NamedDecl *declaration) {
         }
         return "guide/" + std::to_string(index);
     }
-    if (declaration->getDeclName().isIdentifier()) {
-        return declaration->getName().str();
+    unsigned index = 0;
+    for (const auto *sibling : declaration->getDeclContext()->decls()) {
+        if (sibling == declaration) {
+            return "#" + std::to_string(index);
+        }
+        if (sibling->isImplicit() && sibling->getKind() == declaration->getKind() &&
+            sibling->getLocation() == declaration->getLocation()) {
+            ++index;
+        }
     }
     return declaration->getDeclName().getAsString();
 }
@@ -251,6 +258,11 @@ class BindingVisitor : public RecursiveASTVisitor<BindingVisitor> {
         for (const auto *candidate : expression->decls()) {
             record(expression->getNameLoc(), "candidate", candidate);
         }
+        return true;
+    }
+
+    bool VisitLabelStmt(LabelStmt *statement) {
+        record(statement->getIdentLoc(), "decl", statement->getDecl());
         return true;
     }
 

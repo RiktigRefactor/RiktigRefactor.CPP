@@ -1,0 +1,11 @@
+{
+  "options": {
+    "newName": "Crate"
+  },
+  "spec": [
+    "C++ [temp.class]",
+    "C++ [temp.spec.partial]",
+    "C++ [temp.expl.spec]",
+    "C++ [over.match.class.deduct]"
+  ]
+}

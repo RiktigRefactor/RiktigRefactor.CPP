@@ -28,6 +28,9 @@ std::string spelledNameOf(const NamedDecl *declaration) {
     if (const auto *guide = dyn_cast<CXXDeductionGuideDecl>(declaration)) {
         return guide->getDeducedTemplate()->getName().str();
     }
+    if (const auto *functionTemplate = dyn_cast<FunctionTemplateDecl>(declaration)) {
+        return spelledNameOf(functionTemplate->getTemplatedDecl());
+    }
     if (declaration->getDeclName().isIdentifier()) {
         return declaration->getName().str();
     }
@@ -70,6 +73,9 @@ const NamedDecl *entityRoot(const NamedDecl *declaration) {
         }
     }
     if (const auto *functionTemplate = dyn_cast<FunctionTemplateDecl>(declaration)) {
+        if (isa<CXXConstructorDecl, CXXDestructorDecl, CXXDeductionGuideDecl>(functionTemplate->getTemplatedDecl())) {
+            return entityRoot(functionTemplate->getTemplatedDecl());
+        }
         if (auto *pattern = functionTemplate->getInstantiatedFromMemberTemplate()) {
             return entityRoot(pattern);
         }
@@ -193,6 +199,16 @@ void addRelatedDeclarations(const NamedDecl *declaration, std::vector<const Name
     }
 }
 
+// Declarations the compiler makes, such as an implicit deduction guide and its parameters, which are located at the
+// name of the declaration they are made from.
+bool isCompilerGenerated(const NamedDecl *declaration) {
+    if (declaration->isImplicit()) {
+        return true;
+    }
+    const auto *context = dyn_cast<Decl>(declaration->getDeclContext());
+    return isa<ParmVarDecl>(declaration) && context && context->isImplicit();
+}
+
 bool isReservedIdentifier(llvm::StringRef name) {
     return name.contains("__") || (name.size() >= 2 && name[0] == '_' && clang::isUppercase(name[1]));
 }
@@ -243,6 +259,9 @@ std::optional<RefusalReason> RenamePlanner::findSymbolAtCursor() {
     for (const auto &unit : translationUnits_) {
         if (auto found = unit.namedAtToken.find(token); found != unit.namedAtToken.end()) {
             for (const auto *declaration : found->second) {
+                if (isCompilerGenerated(declaration) && !isa<CXXRecordDecl>(declaration)) {
+                    continue;
+                }
                 const auto *root = entityRoot(declaration);
                 roots.emplace(identityOf(root), root);
             }
@@ -256,8 +275,13 @@ std::optional<RefusalReason> RenamePlanner::findSymbolAtCursor() {
         return makeRefusal(codes::NoSymbol, "There is no renameable symbol at the cursor.", tokenRange);
     }
     if (roots.size() > 1) {
+        std::string kinds;
+        for (const auto &[identity, root] : roots) {
+            kinds += (kinds.empty() ? "" : ", ") + std::string(root->getDeclKindName());
+        }
         return makeRefusal(codes::AmbiguousSymbol,
-                           "The identifier at the cursor refers to more than one symbol, such as an overload set.",
+                           "The identifier at the cursor refers to more than one symbol (" + kinds +
+                               "), such as an overload set.",
                            tokenRange, "Put the cursor on the symbol's declaration.");
     }
     symbol_ = roots.begin()->second;

@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "finished"
+  },
+  "spec": [
+    "C++ [stmt.label]",
+    "C++ [stmt.goto]"
+  ]
+}

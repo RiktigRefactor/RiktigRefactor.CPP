@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "Green"
+  },
+  "spec": [
+    "C++ [dcl.enum]",
+    "C++ [enum.udecl]"
+  ]
+}
