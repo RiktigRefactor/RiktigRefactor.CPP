@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+clang_format=$(command -v clang-format-18 || command -v clang-format)
+git ls-files -co --exclude-standard -- 'src/*.cpp' 'src/*.h' 'tests/runner/*.cpp' 'tests/runner/*.h' |
+    xargs "$clang_format" --dry-run --Werror
+
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+ctest --test-dir build --output-on-failure --parallel "$(nproc)"
