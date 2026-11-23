@@ -23,6 +23,7 @@ add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 add_library(riktigrefactor-cpp STATIC
     src/riktig/Bindings.cpp
     src/riktig/EditMap.cpp
+    src/riktig/NameChecks.cpp
     src/riktig/ExtractIife.cpp
     src/riktig/Protocol.cpp
     src/riktig/RawTokens.cpp
