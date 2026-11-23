@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "offset"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.prim.lambda.capture]",
+    "C++ [basic.scope.param]"
+  ],
+  "notes": "The implicitly captured local would be hidden by the renamed lambda parameter."
+}

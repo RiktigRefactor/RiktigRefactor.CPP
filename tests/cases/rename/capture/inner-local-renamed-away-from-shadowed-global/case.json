@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "depth"
+  },
+  "spec": [
+    "C++ [basic.scope.block]",
+    "C++ [basic.lookup.qual]"
+  ],
+  "notes": "Every reference to the inner local is renamed, so none falls through to the global it shadowed."
+}
