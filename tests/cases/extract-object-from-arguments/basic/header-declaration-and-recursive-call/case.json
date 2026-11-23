@@ -1,0 +1,15 @@
+{
+  "options": {
+    "parameters": [
+      "count",
+      "step"
+    ],
+    "typeName": "Steps"
+  },
+  "spec": [
+    "C++ [dcl.init.aggr]",
+    "C++ [basic.def.odr]",
+    "C++ [expr.prim.lambda.capture]"
+  ],
+  "notes": "The declaration in a header and the definition change together; the body assigns a grouped parameter, a [&] lambda reads one, and a recursive call builds the object from the members."
+}

@@ -54,6 +54,9 @@ inline constexpr const char *InvalidParameter = "invalid-parameter";
 inline constexpr const char *UnsupportedParameter = "unsupported-parameter";
 inline constexpr const char *ReceiverConversion = "receiver-conversion";
 
+inline constexpr const char *NonContiguousParameters = "non-contiguous-parameters";
+inline constexpr const char *UnsupportedDefault = "unsupported-default";
+
 inline constexpr const char *InternalVerificationFailed = "internal-verification-failed";
 
 } // namespace riktig::refusal_codes

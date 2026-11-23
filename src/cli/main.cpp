@@ -1,4 +1,5 @@
 #include "ExtractIife.h"
+#include "ExtractObjectFromArguments.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
 #include "MoveToInstanceMethod.h"
@@ -30,6 +31,7 @@ const char *usage = R"(Usage:
   riktig-cpp make-method-static --workspace <compile_commands.json> --file <file> --at <line>:<column> [--receiver-name <name>] [--apply] [--json]
   riktig-cpp move-static-member --workspace <compile_commands.json> --file <file> --at <line>:<column> --target <qualified name> [--apply] [--json]
   riktig-cpp move-to-instance-method --workspace <compile_commands.json> --file <file> --at <line>:<column> --receiver <parameter> [--apply] [--json]
+  riktig-cpp extract-object-from-arguments --workspace <compile_commands.json> --file <file> --at <line>:<column> --parameters <name>,<name>... --type-name <name> [--parameter-name <name>] [--apply] [--json]
 
 The workspace is a compile_commands.json file, or the directory holding it.
 Positions are 1-based, and columns count Unicode scalar values; --to is exclusive.
@@ -215,6 +217,20 @@ int main(int argc, char **argv) {
         return report(*workspace,
                       moveToInstanceMethod(*workspace, MoveToInstanceMethodRequest{file, *at, options["receiver"]}),
                       json, apply);
+    }
+    if (command == "extract-object-from-arguments") {
+        auto at = parsePosition(options["at"]);
+        if (!at || options["parameters"].empty() || options["type-name"].empty()) {
+            llvm::errs() << usage;
+            return ExitError;
+        }
+        ExtractObjectFromArgumentsRequest request{file, *at, {}, options["type-name"], options["parameter-name"]};
+        llvm::SmallVector<llvm::StringRef> names;
+        llvm::StringRef(options["parameters"]).split(names, ',');
+        for (auto name : names) {
+            request.parameters.push_back(name.trim().str());
+        }
+        return report(*workspace, extractObjectFromArguments(*workspace, request), json, apply);
     }
     llvm::errs() << "Unknown command " << command << "\n" << usage;
     return ExitError;

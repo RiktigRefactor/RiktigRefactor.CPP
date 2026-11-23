@@ -1,6 +1,7 @@
 add_executable(riktig-cpp-case-runner
     runner/CaseRunner.cpp
     runner/NaiveExtractIife.cpp
+    runner/NaiveExtractObjectFromArguments.cpp
     runner/NaiveMakeMethodStatic.cpp
     runner/NaiveMoveStaticMember.cpp
     runner/NaiveMoveToInstanceMethod.cpp

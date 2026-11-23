@@ -25,6 +25,7 @@ add_library(riktigrefactor-cpp STATIC
     src/riktig/EditMap.cpp
     src/riktig/NameChecks.cpp
     src/riktig/ExtractIife.cpp
+    src/riktig/ExtractObjectFromArguments.cpp
     src/riktig/FunctionRefactoring.cpp
     src/riktig/Independence.cpp
     src/riktig/MakeMethodStatic.cpp

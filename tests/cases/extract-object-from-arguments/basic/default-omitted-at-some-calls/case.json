@@ -1,0 +1,16 @@
+{
+  "options": {
+    "parameters": [
+      "price",
+      "qty"
+    ],
+    "typeName": "QuoteLine",
+    "parameterName": "line"
+  },
+  "spec": [
+    "C++ [dcl.init.aggr]",
+    "C++ [dcl.fct.default]",
+    "C++ [class.mem]"
+  ],
+  "notes": "The spec example: a defaulted parameter becomes a default member initializer, a call that omits it omits the designator, and the body reads the members."
+}

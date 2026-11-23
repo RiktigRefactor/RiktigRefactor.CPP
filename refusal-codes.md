@@ -29,20 +29,20 @@ A new code is listed in the release notes.
 | `temporary-lifetime` | Extract IIFE: the expression creates a temporary that would be destroyed when the lambda returns instead of at the end of the full-expression, and that is observable (a non-trivial destructor, or a result that could refer to it). |
 | `destructor-timing` | Extract IIFE: a variable declared in the selected statements would be destroyed when the lambda returns, before the rest of its block runs. |
 | `declaration-escapes` | Extract IIFE: something declared in the selected statements is used after them. |
-| `captured-variable` | Extract IIFE: a variable crossing the boundary is captured by a lambda in the selection, or by the lambda enclosing the selection. |
+| `captured-variable` | Extract IIFE: a variable crossing the boundary is captured by a lambda in the selection, or by the lambda enclosing the selection. Extract object from arguments: a lambda captures a grouped parameter explicitly. |
 | `function-name-observed` | Extract IIFE: the selection uses `__func__`, `__PRETTY_FUNCTION__`, or `std::source_location::current()`, whose value would name the lambda. |
 | `unevaluated-operand` | Extract IIFE: the selection is an unevaluated operand, or uses a variable crossing the boundary in one (such as `decltype`), where the parameter's reference type would show. |
 | `bit-field` | Extract IIFE: the expression is a bit-field, which a lambda can't return by reference. |
 | `not-an-instance-method` | Make method static: the symbol is not an instance member function named by an identifier (a constructor, destructor, conversion function, operator, or static member). |
-| `virtual-dispatch` | Make method static: the method is virtual or overrides another, so calls dispatch on the receiver's dynamic type. |
+| `virtual-dispatch` | Make method static, Extract object from arguments: the method is virtual or overrides another, so calls dispatch on the receiver's dynamic type, and its overrides would have to change together. |
 | `template-involved` | The function, variable, source or target is a template or a member of one, or a template instantiation refers to it; other instantiations could call something else. |
 | `unsupported-method` | Make method static: the method is `volatile`, ref-qualified, deleted, defaulted, a member of an unnamed class, named in a friend declaration, starts with an attribute, or its parameter list is not written out. |
-| `member-function-pointer` | Make method static, Move static method to instance method: the function is used other than by calling it, such as `&Order::total`, whose type would change. |
+| `member-function-pointer` | Make method static, Move static method to instance method, Extract object from arguments: the function is used other than by calling it, such as `&Order::total`, whose type would change. |
 | `receiver-not-lvalue` | Make method static: a non-`const` method is called on a temporary, which a non-`const` reference parameter can't bind. |
 | `evaluation-order` | The change would let expressions be evaluated in another order, and the tool can't show they are independent. |
 | `receiver-captured` | Make method static: a lambda in the method captures `this` explicitly or by copy. Move static method to instance method: a lambda captures the receiver parameter explicitly or by copy. |
 | `declared-outside-workspace` | The function or variable is declared outside the workspace. |
-| `name-collision` | A new name (such as the receiver parameter) is already used where it would be declared, or the target (or a base class of it) already has a member with the moved member's name, other than overloads of a function. |
+| `name-collision` | A new name (such as the receiver parameter, or Extract object from arguments' type, which must be new in every workspace file, and parameter) is already used where it would be declared, or the target (or a base class of it) already has a member with the moved member's name, other than overloads of a function. |
 | `unsupported-option` | An option value the tool does not implement yet, such as Make method static's `pass: "members"`. |
 | `not-a-static-member` | Move static member: the symbol is not a static member function or data member, or a namespace-scope function or variable. |
 | `invalid-target` | Move static member: the target is not a class or namespace declared in the workspace and visible where the member is declared and used, or is the member's current container, or is a local class. |
@@ -50,7 +50,9 @@ A new code is listed in the release notes.
 | `dynamic-initialization` | Move static member: the variable is not `constexpr`, so when it is initialized depends on where it is defined. |
 | `unsupported-member` | Move static member: the member is `main`, has C language linkage, is deleted, is named in a friend declaration, or is declared more than once (except a static member function's out-of-line definition). |
 | `discarded-expression` | Move static member: a reference reaches the member through an expression that may have an effect (`make().member`), which the qualified name would no longer evaluate. |
-| `invalid-parameter` | Move static method to instance method: the function has no parameter with the given name. |
-| `unsupported-parameter` | Move static method to instance method: the receiver parameter is not a reference to a class (a pointer, a copy), is `volatile`, or has a default argument. |
+| `invalid-parameter` | Move static method to instance method, Extract object from arguments: the function has no parameter with a given name, a name is given twice, or none is given. |
+| `unsupported-parameter` | Move static method to instance method: the receiver parameter is not a reference to a class (a pointer, a copy), is `volatile`, or has a default argument. Extract object from arguments: a grouped parameter is a reference, array, function pointer, `volatile`, unnamed in the definition, or has a non-trivial destructor (a member is destroyed at another time). |
 | `receiver-conversion` | Move static method to instance method: a call's receiver argument is converted to the class (such as by a converting constructor), which would happen at another time or not at all. |
+| `non-contiguous-parameters` | Extract object from arguments: the grouped parameters are not next to each other. |
+| `unsupported-default` | Extract object from arguments: a grouped parameter's default argument is not a constant, so as a default member initializer it would look names up in another scope. |
 | `internal-verification-failed` | The tool's own check of its result failed. This is a bug in the tool; please report it. |

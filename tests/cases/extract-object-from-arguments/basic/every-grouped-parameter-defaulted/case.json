@@ -1,0 +1,14 @@
+{
+  "options": {
+    "parameters": [
+      "width",
+      "height"
+    ],
+    "typeName": "Size"
+  },
+  "spec": [
+    "C++ [dcl.fct.default]",
+    "C++ [dcl.init.aggr]"
+  ],
+  "notes": "When every grouped parameter has a default, the new parameter defaults to {} and a call that gave none of them stays as it was."
+}

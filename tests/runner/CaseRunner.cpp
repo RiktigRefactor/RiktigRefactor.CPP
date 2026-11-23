@@ -252,6 +252,24 @@ RefactoringResult runRefactoring(const CaseDefinition &definition, const Markers
         MoveToInstanceMethodRequest request{markers.file, cursor, receiver->str()};
         return naive ? naiveMoveToInstanceMethod(*workspace, request) : moveToInstanceMethod(*workspace, request);
     }
+    if (definition.refactoring == "extract-object-from-arguments") {
+        auto typeName = definition.options.getString("typeName");
+        auto *parameters = definition.options.getArray("parameters");
+        if (!typeName || !parameters) {
+            throw Failure{"An extract-object-from-arguments case needs options.parameters and options.typeName"};
+        }
+        ExtractObjectFromArgumentsRequest request{markers.file, cursor, {}, typeName->str(), ""};
+        for (const auto &parameter : *parameters) {
+            if (auto name = parameter.getAsString()) {
+                request.parameters.push_back(name->str());
+            }
+        }
+        if (auto parameterName = definition.options.getString("parameterName")) {
+            request.parameterName = parameterName->str();
+        }
+        return naive ? naiveExtractObjectFromArguments(*workspace, request)
+                     : extractObjectFromArguments(*workspace, request);
+    }
     throw Failure{"Unknown refactoring " + definition.refactoring};
 }
 

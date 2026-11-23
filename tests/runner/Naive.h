@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ExtractIife.h"
+#include "ExtractObjectFromArguments.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
 #include "MoveToInstanceMethod.h"
@@ -16,6 +17,8 @@ RefactoringResult naiveRename(const Workspace &workspace, const RenameRequest &r
 RefactoringResult naiveExtractIife(const Workspace &workspace, const ExtractIifeRequest &request);
 RefactoringResult naiveMakeMethodStatic(const Workspace &workspace, const MakeMethodStaticRequest &request);
 RefactoringResult naiveMoveStaticMember(const Workspace &workspace, const MoveStaticMemberRequest &request);
+RefactoringResult naiveExtractObjectFromArguments(const Workspace &workspace,
+                                                  const ExtractObjectFromArgumentsRequest &request);
 RefactoringResult naiveMoveToInstanceMethod(const Workspace &workspace, const MoveToInstanceMethodRequest &request);
 
 } // namespace riktig
