@@ -1,0 +1,8 @@
+{
+  "refuse": "target-typed-expression",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [conv.ptr]"
+  ],
+  "notes": "0 is a null pointer constant only as a literal; returned from a lambda it is an int."
+}

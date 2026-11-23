@@ -1,0 +1,7 @@
+{
+  "refuse": "declaration-escapes",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [basic.scope.block]"
+  ]
+}

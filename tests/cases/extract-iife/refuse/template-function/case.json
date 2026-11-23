@@ -1,0 +1,6 @@
+{
+  "refuse": "unsupported-context",
+  "spec": [
+    "C++ [temp.res]"
+  ]
+}

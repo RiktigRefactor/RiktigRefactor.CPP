@@ -1,0 +1,8 @@
+{
+  "refuse": "temporary-lifetime",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.temporary]"
+  ],
+  "notes": "The temporary is destroyed at the end of the full-expression, after destroyed is read; inside the lambda it would be destroyed first."
+}

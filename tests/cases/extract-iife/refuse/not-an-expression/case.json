@@ -1,0 +1,6 @@
+{
+  "refuse": "invalid-selection",
+  "spec": [
+    "C++ [expr.pre]"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "refuse": "unevaluated-operand",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [dcl.type.decltype]"
+  ],
+  "notes": "decltype of the parameter would be a reference type."
+}

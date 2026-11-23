@@ -1,0 +1,7 @@
+{
+  "refuse": "unsupported-context",
+  "spec": [
+    "C++ [stmt.switch]",
+    "C++ [expr.const]"
+  ]
+}

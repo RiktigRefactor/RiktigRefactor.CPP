@@ -1,0 +1,6 @@
+{
+  "refuse": "macro-involved",
+  "spec": [
+    "C++ [cpp.replace]"
+  ]
+}

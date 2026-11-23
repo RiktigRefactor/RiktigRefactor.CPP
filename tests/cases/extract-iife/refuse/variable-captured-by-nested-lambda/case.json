@@ -1,0 +1,8 @@
+{
+  "refuse": "captured-variable",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.prim.lambda.capture]"
+  ],
+  "notes": "The nested lambda would capture the copy made for the parameter, and outlive it."
+}

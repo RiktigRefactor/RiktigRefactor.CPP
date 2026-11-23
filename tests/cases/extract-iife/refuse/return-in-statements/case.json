@@ -1,0 +1,7 @@
+{
+  "refuse": "non-local-control-flow",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [stmt.return]"
+  ]
+}

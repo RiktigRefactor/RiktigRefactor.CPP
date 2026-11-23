@@ -1,0 +1,9 @@
+{
+  "refuse": "destructor-timing",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.dtor]",
+    "C++ [stmt.dcl]"
+  ],
+  "notes": "The guard would be destroyed before the rest of its block runs."
+}

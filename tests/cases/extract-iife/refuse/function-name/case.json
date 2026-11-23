@@ -1,0 +1,8 @@
+{
+  "refuse": "function-name-observed",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [dcl.fct.def.general]"
+  ],
+  "notes": "__func__ would name the lambda call operator."
+}
