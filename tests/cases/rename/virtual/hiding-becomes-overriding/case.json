@@ -1,0 +1,12 @@
+{
+  "options": {
+    "newName": "run"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.virtual]",
+    "C++ [class.member.lookup]"
+  ],
+  "notes": "Renaming the derived member to the name of a base virtual makes it an override, which changes virtual dispatch."
+}

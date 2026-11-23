@@ -1,0 +1,9 @@
+{
+  "options": {
+    "newName": "speak"
+  },
+  "spec": [
+    "C++ [class.virtual]"
+  ],
+  "notes": "The cursor on an override renames the whole hierarchy."
+}

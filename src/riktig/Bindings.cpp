@@ -388,14 +388,15 @@ class BindingVisitor : public RecursiveASTVisitor<BindingVisitor> {
             return;
         }
         bool inWorkspace = workspace_.contains(normalized->location.file);
-        if (inWorkspace) {
+        bool namesDeclaration = role != "overrides" && role != "specializes";
+        if (inWorkspace && namesDeclaration) {
             out_.workspaceFiles.insert(normalized->location.file);
             auto &named = normalized->macroSuffix.empty() ? out_.namedAtToken : out_.namedAtTokenInMacro;
             auto &atToken = named[normalized->location];
             if (std::find(atToken.begin(), atToken.end(), declaration) == atToken.end()) {
                 atToken.push_back(declaration);
             }
-        } else if (instantiationDepth_ == 0) {
+        } else if (!inWorkspace && instantiationDepth_ == 0) {
             return;
         }
         out_.bindings[BindingKey{normalized->location, role.str() + normalized->macroSuffix}].insert(

@@ -1,0 +1,10 @@
+{
+  "options": {
+    "newName": "surface"
+  },
+  "spec": [
+    "C++ [class.virtual]",
+    "C++ [basic.def.odr]"
+  ],
+  "notes": "Renaming the base member renames its override in another translation unit."
+}
