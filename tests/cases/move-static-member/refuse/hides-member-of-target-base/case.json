@@ -1,0 +1,12 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "name-collision",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.member.lookup]",
+    "C++ [basic.scope.hiding]"
+  ],
+  "notes": "Pricing::rate named the base class member; the moved member would hide it."
+}

@@ -1,0 +1,11 @@
+{
+  "options": {
+    "target": "shop"
+  },
+  "refuse": "unsupported-target",
+  "spec": [
+    "C++ [class.static.mfct]",
+    "C++ [namespace.def]"
+  ],
+  "notes": "Moving between a class and a namespace is not supported yet."
+}

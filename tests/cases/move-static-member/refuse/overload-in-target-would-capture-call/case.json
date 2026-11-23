@@ -1,0 +1,12 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "binding-would-change",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [over.match.best]",
+    "C++ [over.ics.rank]"
+  ],
+  "notes": "Pricing::scale(1) called scale(long); the moved scale(int) is a better match."
+}

@@ -1,0 +1,10 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "not-a-static-member",
+  "spec": [
+    "C++ [class.mfct.non.static]"
+  ],
+  "notes": "An instance method must be made static first."
+}

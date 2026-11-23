@@ -1,0 +1,12 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "discarded-expression",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [expr.ref]",
+    "C++ [class.static]"
+  ],
+  "notes": "pick().total() evaluates pick() even though total is static; Pricing::total() would not."
+}

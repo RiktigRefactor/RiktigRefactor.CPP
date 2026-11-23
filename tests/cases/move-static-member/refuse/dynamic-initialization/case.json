@@ -1,0 +1,11 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "dynamic-initialization",
+  "spec": [
+    "C++ [basic.start.dynamic]",
+    "C++ [class.static.data]"
+  ],
+  "notes": "The member is initialized by a call, whose order relative to other initializers depends on where it is defined."
+}

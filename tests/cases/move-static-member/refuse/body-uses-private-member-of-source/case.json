@@ -1,0 +1,11 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "refuse": "would-introduce-errors",
+  "naiveShouldFail": true,
+  "spec": [
+    "C++ [class.access]"
+  ],
+  "notes": "The target cannot access the source private member the body uses; the tool refuses rather than widening access."
+}

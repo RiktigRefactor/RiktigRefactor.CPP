@@ -1,0 +1,10 @@
+{
+  "options": {
+    "target": "shop::Missing"
+  },
+  "refuse": "invalid-target",
+  "spec": [
+    "C++ [basic.lookup.qual]"
+  ],
+  "notes": "The target must be a class or namespace declared in the workspace."
+}
