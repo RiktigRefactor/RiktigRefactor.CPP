@@ -3,19 +3,12 @@ dotnet = "latest"
 cmake = "latest"
 ninja = "latest"
 
-[tools."github:llvm/llvm-project"]
-version = "18.1.8"
-version_prefix = "llvmorg-"
-bin_path = "bin"
-
-[tools."github:llvm/llvm-project".platforms]
-linux-x64 = { asset_pattern = "clang?llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz" }
-linux-arm64 = { asset_pattern = "clang?llvm-18.1.8-aarch64-linux-gnu.tar.xz" }
-macos-arm64 = { asset_pattern = "clang?llvm-18.1.8-arm64-apple-macos11.tar.xz" }
-windows-x64 = { asset_pattern = "clang?llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz" }
+# LLVM 18 from conda-forge: the llvm-project release tarballs need libtinfo.so.5 on Linux and have no shared libraries on Windows.
+"conda:clangdev" = "18.1.8"
+"conda:clang-format" = "18.1.8"
 
 [env]
-RIKTIG_LLVM_ROOT = { value = "{{ tools['github:llvm/llvm-project'].path }}", tools = true }
+RIKTIG_LLVM_ROOT = { value = "{{ tools['conda:clangdev'].path }}", tools = true }
 
 [tasks.mdsnippets]
 description = "Update snippets and the table of contents in markdown files"
