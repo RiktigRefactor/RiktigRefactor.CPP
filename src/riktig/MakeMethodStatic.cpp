@@ -399,7 +399,7 @@ std::optional<RefusalReason> MakeMethodStaticPlanner::rewriteCall(const Function
     }
     plan_.expectQualifier(file, qualifierOffset, name->offset - qualifierOffset, 0, *qualifier);
     if (movedReceiver) {
-        plan_.relocate(file, movedReceiver->begin, movedReceiver->end - movedReceiver->begin, lparen->end, 0,
+        plan_.relocate(file, movedReceiver->begin, movedReceiver->end - movedReceiver->begin, file, lparen->end, 0,
                        receiverPrefix);
     }
     if (inBody && !movedReceiver) {

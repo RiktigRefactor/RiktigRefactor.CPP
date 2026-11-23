@@ -94,10 +94,14 @@ class EditPlan {
     bool insert(const std::string &file, unsigned offset, std::string newText) {
         return replace(file, offset, 0, std::move(newText));
     }
-    // Records that [from, from + length) is copied into the new text of the replacement at `replacementOffset`,
-    // starting at `positionInNewText`, so its bindings are expected there.
-    void relocate(const std::string &file, unsigned from, unsigned length, unsigned replacementOffset,
-                  unsigned replacementLength, unsigned positionInNewText);
+    // Records that [from, from + length) of `file` is copied into the new text of the replacement at
+    // `replacementOffset` of `destinationFile`, starting at `positionInNewText`, with `innerEdits` (offsets relative
+    // to `from`) applied to the copy, so its bindings are expected there.
+    void relocate(const std::string &file, unsigned from, unsigned length, const std::string &destinationFile,
+                  unsigned replacementOffset, unsigned replacementLength, unsigned positionInNewText,
+                  std::vector<Replacement> innerEdits = {});
+    // Where an offset relative to `from` of relocated text is in the copy, after its inner edits.
+    static unsigned offsetInCopy(const std::vector<Replacement> &innerEdits, unsigned relativeOffset);
     // Records that inserted text at `positionInNewText` must bind with `role` to the declaration found by
     // `identity` (given in the original files' coordinates, or after the edits when `identityIsAfter`).
     void expectBinding(const std::string &file, unsigned replacementOffset, unsigned replacementLength,
@@ -122,9 +126,11 @@ class EditPlan {
         std::string file;
         unsigned from;
         unsigned length;
+        std::string destinationFile;
         unsigned replacementOffset;
         unsigned replacementLength;
         unsigned positionInNewText;
+        std::vector<Replacement> innerEdits;
     };
     struct Expectation {
         std::string file;

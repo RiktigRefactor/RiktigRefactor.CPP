@@ -386,15 +386,27 @@ bool EditPlan::replace(const std::string &file, unsigned offset, unsigned length
     return edits_.add(file, Replacement{offset, length, std::move(newText)});
 }
 
-void EditPlan::relocate(const std::string &file, unsigned from, unsigned length, unsigned replacementOffset,
-                        unsigned replacementLength, unsigned positionInNewText) {
-    Relocation relocation{file, from, length, replacementOffset, replacementLength, positionInNewText};
+void EditPlan::relocate(const std::string &file, unsigned from, unsigned length, const std::string &destinationFile,
+                        unsigned replacementOffset, unsigned replacementLength, unsigned positionInNewText,
+                        std::vector<Replacement> innerEdits) {
     for (const auto &existing : relocations_) {
         if (existing.file == file && existing.from == from && existing.length == length) {
             return;
         }
     }
-    relocations_.push_back(relocation);
+    std::sort(innerEdits.begin(), innerEdits.end(), [](const Replacement &left, const Replacement &right) {
+        return std::pair(left.offset, left.length) < std::pair(right.offset, right.length);
+    });
+    relocations_.push_back(Relocation{file, from, length, destinationFile, replacementOffset, replacementLength,
+                                      positionInNewText, std::move(innerEdits)});
+}
+
+unsigned EditPlan::offsetInCopy(const std::vector<Replacement> &innerEdits, unsigned relativeOffset) {
+    EditMap map;
+    for (const auto &edit : innerEdits) {
+        map.add("", edit);
+    }
+    return map.mapOffset("", relativeOffset);
 }
 
 void EditPlan::expectBinding(const std::string &file, unsigned replacementOffset, unsigned replacementLength,
@@ -431,9 +443,10 @@ std::optional<FileOffset> EditPlan::relocated(const FileOffset &before) const {
     for (const auto &relocation : relocations_) {
         if (relocation.file == before.file && relocation.from <= before.offset &&
             before.offset < relocation.from + relocation.length) {
-            return FileOffset{before.file, afterOffset(relocation.file, relocation.replacementOffset,
-                                                       relocation.replacementLength, relocation.positionInNewText) +
-                                               (before.offset - relocation.from)};
+            return FileOffset{relocation.destinationFile,
+                              afterOffset(relocation.destinationFile, relocation.replacementOffset,
+                                          relocation.replacementLength, relocation.positionInNewText) +
+                                  offsetInCopy(relocation.innerEdits, before.offset - relocation.from)};
         }
     }
     return std::nullopt;
@@ -446,19 +459,32 @@ bool EditPlan::isInInsertedText(const FileOffset &after) const {
     }
     for (const auto &replacement : found->second) {
         unsigned start = afterOffset(after.file, replacement.offset, replacement.length, 0);
-        if (start <= after.offset && after.offset < start + replacement.newText.size()) {
-            for (const auto &relocation : relocations_) {
-                if (relocation.file != after.file || relocation.replacementOffset != replacement.offset ||
-                    relocation.replacementLength != replacement.length) {
-                    continue;
-                }
-                unsigned relocatedStart = start + relocation.positionInNewText;
-                if (relocatedStart <= after.offset && after.offset < relocatedStart + relocation.length) {
-                    return false;
-                }
-            }
-            return true;
+        if (after.offset < start || after.offset >= start + replacement.newText.size()) {
+            continue;
         }
+        for (const auto &relocation : relocations_) {
+            if (relocation.destinationFile != after.file || relocation.replacementOffset != replacement.offset ||
+                relocation.replacementLength != replacement.length) {
+                continue;
+            }
+            unsigned copyStart = start + relocation.positionInNewText;
+            unsigned copyLength = offsetInCopy(relocation.innerEdits, relocation.length);
+            if (after.offset < copyStart || after.offset >= copyStart + copyLength) {
+                continue;
+            }
+            unsigned inCopy = after.offset - copyStart;
+            // Text that an inner edit inserted is new; the rest is copied.
+            long shift = 0;
+            for (const auto &inner : relocation.innerEdits) {
+                long newStart = static_cast<long>(inner.offset) + shift;
+                if (newStart <= inCopy && inCopy < newStart + static_cast<long>(inner.newText.size())) {
+                    return true;
+                }
+                shift += static_cast<long>(inner.newText.size()) - static_cast<long>(inner.length);
+            }
+            return false;
+        }
+        return true;
     }
     return false;
 }
@@ -466,6 +492,23 @@ bool EditPlan::isInInsertedText(const FileOffset &after) const {
 BindingExpectations EditPlan::expectations() const {
     BindingExpectations expectations;
     expectations.relocate = [this](const FileOffset &before) { return relocated(before); };
+    // Text that a replacement deletes, and that is not copied elsewhere, loses its bindings.
+    expectations.isDropped = [this](const BindingKey &key, const DeclIdentity &) {
+        if (relocated(key.location)) {
+            return false;
+        }
+        auto found = edits_.replacements().find(key.location.file);
+        if (found == edits_.replacements().end()) {
+            return false;
+        }
+        for (const auto &replacement : found->second) {
+            if (replacement.offset <= key.location.offset &&
+                key.location.offset < replacement.offset + replacement.length) {
+                return true;
+            }
+        }
+        return false;
+    };
     expectations.isExpectedNew = [this](const BindingKey &key, const std::set<DeclIdentity> &identities) {
         if (!isInInsertedText(key.location)) {
             return false;
@@ -521,7 +564,12 @@ std::optional<RefusalReason> verifyEditPlan(const Workspace &workspace, const Lo
     auto expectations = plan.expectations();
     expectations.substitute = intended.substitute;
     expectations.isNew = intended.isNew;
-    expectations.isDropped = intended.isDropped;
+    if (intended.isDropped) {
+        expectations.isDropped = [planDropped = expectations.isDropped, intended](const BindingKey &key,
+                                                                                  const DeclIdentity &identity) {
+            return planDropped(key, identity) || intended.isDropped(key, identity);
+        };
+    }
     if (auto difference = compareBindings(before.units, after, edits, expectations)) {
         auto location = edits.unmap(difference->location);
         return makeRefusal(codes::BindingWouldChange,
