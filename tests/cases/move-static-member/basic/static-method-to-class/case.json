@@ -1,0 +1,11 @@
+{
+  "options": {
+    "target": "Pricing"
+  },
+  "spec": [
+    "C++ [class.static.mfct]",
+    "C++ [class.mem]",
+    "C++ [basic.lookup.qual]"
+  ],
+  "notes": "The moved body uses another static member of the source unqualified, which is qualified so it still names it, and not the target member of the same name."
+}

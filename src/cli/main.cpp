@@ -1,5 +1,6 @@
 #include "ExtractIife.h"
 #include "MakeMethodStatic.h"
+#include "MoveStaticMember.h"
 #include "Rename.h"
 #include "Results.h"
 #include "Workspace.h"
@@ -26,6 +27,7 @@ const char *usage = R"(Usage:
   riktig-cpp rename --workspace <compile_commands.json> --file <file> --at <line>:<column> --new-name <name> [--apply] [--json]
   riktig-cpp extract-iife --workspace <compile_commands.json> --file <file> --from <line>:<column> --to <line>:<column> [--apply] [--json]
   riktig-cpp make-method-static --workspace <compile_commands.json> --file <file> --at <line>:<column> [--receiver-name <name>] [--apply] [--json]
+  riktig-cpp move-static-member --workspace <compile_commands.json> --file <file> --at <line>:<column> --target <qualified name> [--apply] [--json]
 
 The workspace is a compile_commands.json file, or the directory holding it.
 Positions are 1-based, and columns count Unicode scalar values; --to is exclusive.
@@ -192,6 +194,15 @@ int main(int argc, char **argv) {
             request.pass = options["pass"];
         }
         return report(*workspace, makeMethodStatic(*workspace, request), json, apply);
+    }
+    if (command == "move-static-member") {
+        auto at = parsePosition(options["at"]);
+        if (!at || options["target"].empty()) {
+            llvm::errs() << usage;
+            return ExitError;
+        }
+        return report(*workspace, moveStaticMember(*workspace, MoveStaticMemberRequest{file, *at, options["target"]}),
+                      json, apply);
     }
     llvm::errs() << "Unknown command " << command << "\n" << usage;
     return ExitError;

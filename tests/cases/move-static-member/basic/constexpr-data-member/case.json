@@ -1,0 +1,10 @@
+{
+  "options": {
+    "target": "Limits"
+  },
+  "spec": [
+    "C++ [class.static.data]",
+    "C++ [dcl.constexpr]"
+  ],
+  "notes": "A constexpr static data member has no dynamic initialization, so it can move."
+}

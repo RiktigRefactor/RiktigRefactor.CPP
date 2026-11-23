@@ -236,6 +236,14 @@ RefactoringResult runRefactoring(const CaseDefinition &definition, const Markers
         }
         return naive ? naiveMakeMethodStatic(*workspace, request) : makeMethodStatic(*workspace, request);
     }
+    if (definition.refactoring == "move-static-member") {
+        auto target = definition.options.getString("target");
+        if (!target) {
+            throw Failure{"A move-static-member case needs options.target"};
+        }
+        MoveStaticMemberRequest request{markers.file, cursor, target->str()};
+        return naive ? naiveMoveStaticMember(*workspace, request) : moveStaticMember(*workspace, request);
+    }
     throw Failure{"Unknown refactoring " + definition.refactoring};
 }
 

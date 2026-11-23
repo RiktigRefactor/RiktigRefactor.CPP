@@ -156,12 +156,14 @@ std::optional<RefusalReason> MakeMethodStaticPlanner::findMethod() {
     }
     method_ = cast<CXXMethodDecl>(method->getCanonicalDecl());
     record_ = method_->getParent();
-    declarations_ = declarationsOf(loaded_, method_);
-    references_ = findFunctionReferences(workspace_, loaded_, method_);
+    for (const auto *declaration : declarationsOf(loaded_, method_)) {
+        declarations_.push_back(cast<CXXMethodDecl>(declaration));
+    }
+    references_ = findReferences(workspace_, loaded_, method_);
     return std::nullopt;
 }
 
-bool MakeMethodStaticPlanner::isInBodyOfMethod(const FunctionReference &reference) const {
+bool MakeMethodStaticPlanner::isInBodyOfMethod(const Reference &reference) const {
     auto location = fileOffsetOf(
         reference.context->getSourceManager(),
         reference.context->getSourceManager().getExpansionLoc(cast<MemberExpr>(reference.expression)->getMemberLoc()));
@@ -339,7 +341,7 @@ void MakeMethodStaticPlanner::checkPreconditions() {
     }
 }
 
-std::optional<RefusalReason> MakeMethodStaticPlanner::rewriteCall(const FunctionReference &reference) {
+std::optional<RefusalReason> MakeMethodStaticPlanner::rewriteCall(const Reference &reference) {
     const auto *member = cast<MemberExpr>(reference.expression);
     const auto &context = *reference.context;
     auto failed = [&](std::string message) {

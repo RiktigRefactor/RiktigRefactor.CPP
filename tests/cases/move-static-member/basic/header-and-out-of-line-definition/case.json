@@ -1,0 +1,12 @@
+{
+  "options": {
+    "target": "shop::Pricing"
+  },
+  "spec": [
+    "C++ [class.static.mfct]",
+    "C++ [class.mfct]",
+    "C++ [basic.def.odr]",
+    "C++ [basic.lookup.unqual]"
+  ],
+  "notes": "The declaration moves between headers; the out-of-line definition stays, with the target as its qualifier, and its body qualifies the source member it used unqualified."
+}

@@ -43,6 +43,13 @@ inline constexpr const char *DeclaredOutsideWorkspace = "declared-outside-worksp
 inline constexpr const char *NameCollision = "name-collision";
 inline constexpr const char *UnsupportedOption = "unsupported-option";
 
+inline constexpr const char *NotAStaticMember = "not-a-static-member";
+inline constexpr const char *InvalidTarget = "invalid-target";
+inline constexpr const char *UnsupportedTarget = "unsupported-target";
+inline constexpr const char *DynamicInitialization = "dynamic-initialization";
+inline constexpr const char *UnsupportedMember = "unsupported-member";
+inline constexpr const char *DiscardedExpression = "discarded-expression";
+
 inline constexpr const char *InternalVerificationFailed = "internal-verification-failed";
 
 } // namespace riktig::refusal_codes

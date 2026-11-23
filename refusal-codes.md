@@ -35,13 +35,19 @@ A new code is listed in the release notes.
 | `bit-field` | Extract IIFE: the expression is a bit-field, which a lambda can't return by reference. |
 | `not-an-instance-method` | Make method static: the symbol is not an instance member function named by an identifier (a constructor, destructor, conversion function, operator, or static member). |
 | `virtual-dispatch` | Make method static: the method is virtual or overrides another, so calls dispatch on the receiver's dynamic type. |
-| `template-involved` | The function is a template or a member of one, or a template instantiation refers to it; other instantiations could call something else. |
+| `template-involved` | The function, variable, source or target is a template or a member of one, or a template instantiation refers to it; other instantiations could call something else. |
 | `unsupported-method` | Make method static: the method is `volatile`, ref-qualified, deleted, defaulted, a member of an unnamed class, named in a friend declaration, starts with an attribute, or its parameter list is not written out. |
 | `member-function-pointer` | Make method static: the method is used other than by calling it, such as `&Order::total`, whose type would change. |
 | `receiver-not-lvalue` | Make method static: a non-`const` method is called on a temporary, which a non-`const` reference parameter can't bind. |
 | `evaluation-order` | The change would let expressions be evaluated in another order, and the tool can't show they are independent. |
 | `receiver-captured` | Make method static: a lambda in the method captures `this` explicitly or by copy. |
-| `declared-outside-workspace` | The function is declared outside the workspace. |
-| `name-collision` | A new name (such as the receiver parameter) is already used where it would be declared. |
+| `declared-outside-workspace` | The function or variable is declared outside the workspace. |
+| `name-collision` | A new name (such as the receiver parameter) is already used where it would be declared, or the target (or a base class of it) already has a member with the moved member's name, other than overloads of a function. |
 | `unsupported-option` | An option value the tool does not implement yet, such as Make method static's `pass: "members"`. |
+| `not-a-static-member` | Move static member: the symbol is not a static member function or data member, or a namespace-scope function or variable. |
+| `invalid-target` | Move static member: the target is not a class or namespace declared in the workspace and visible where the member is declared and used, or is the member's current container, or is a local class. |
+| `unsupported-target` | Move static member: the move is between a class and a namespace, or the target namespace has no block in the file of the declaration. |
+| `dynamic-initialization` | Move static member: the variable is not `constexpr`, so when it is initialized depends on where it is defined. |
+| `unsupported-member` | Move static member: the member is `main`, has C language linkage, is deleted, is named in a friend declaration, or is declared more than once (except a static member function's out-of-line definition). |
+| `discarded-expression` | Move static member: a reference reaches the member through an expression that may have an effect (`make().member`), which the qualified name would no longer evaluate. |
 | `internal-verification-failed` | The tool's own check of its result failed. This is a bug in the tool; please report it. |

@@ -167,7 +167,7 @@ class ReferenceFinder : public RecursiveASTVisitor<ReferenceFinder> {
 
   public:
     ReferenceFinder(const Workspace *workspace, TranslationUnitBindings &unit, const std::string &usr,
-                    const std::string &name, std::vector<FunctionReference> &out)
+                    const std::string &name, std::vector<Reference> &out)
         : workspace_(workspace), unit_(unit), context_(unit.unit->getASTContext()), usr_(usr), name_(name), out_(out) {}
 
     bool shouldVisitTemplateInstantiations() const { return true; }
@@ -198,21 +198,28 @@ class ReferenceFinder : public RecursiveASTVisitor<ReferenceFinder> {
 
   private:
     bool isTarget(const ValueDecl *declaration) {
-        const auto *function = dyn_cast<FunctionDecl>(declaration);
-        if (!function || !function->getDeclName().isIdentifier() || function->getName() != name_) {
+        if (!isa<FunctionDecl, VarDecl>(declaration) || !declaration->getDeclName().isIdentifier() ||
+            declaration->getName() != name_) {
             return false;
         }
-        if (auto *pattern = function->getInstantiatedFromMemberFunction()) {
-            function = pattern;
+        if (const auto *function = dyn_cast<FunctionDecl>(declaration)) {
+            if (auto *pattern = function->getInstantiatedFromMemberFunction()) {
+                declaration = pattern;
+            }
         }
-        return usrOf(function) == usr_;
+        if (const auto *variable = dyn_cast<VarDecl>(declaration)) {
+            if (auto *pattern = variable->getInstantiatedFromStaticDataMember()) {
+                declaration = pattern;
+            }
+        }
+        return usrOf(declaration) == usr_;
     }
 
     void consider(const Expr *expression, const ValueDecl *declaration, SourceLocation nameLocation) {
         if (!isTarget(declaration)) {
             return;
         }
-        FunctionReference reference;
+        Reference reference;
         reference.unit = &unit_;
         reference.context = &context_;
         reference.expression = expression;
@@ -254,18 +261,17 @@ class ReferenceFinder : public RecursiveASTVisitor<ReferenceFinder> {
     ASTContext &context_;
     const std::string &usr_;
     const std::string &name_;
-    std::vector<FunctionReference> &out_;
+    std::vector<Reference> &out_;
     std::vector<const Decl *> stack_;
     int instantiationDepth_ = 0;
 };
 
 } // namespace
 
-std::vector<FunctionReference> findFunctionReferences(const Workspace &workspace, LoadedWorkspace &loaded,
-                                                      const FunctionDecl *function) {
-    std::vector<FunctionReference> references;
-    auto usr = usrOf(function);
-    auto name = function->getName().str();
+std::vector<Reference> findReferences(const Workspace &workspace, LoadedWorkspace &loaded, const ValueDecl *target) {
+    std::vector<Reference> references;
+    auto usr = usrOf(target);
+    auto name = target->getName().str();
     for (auto &unit : loaded.units) {
         ReferenceFinder finder(&workspace, unit, usr, name, references);
         finder.TraverseDecl(unit.unit->getASTContext().getTranslationUnitDecl());
@@ -273,14 +279,25 @@ std::vector<FunctionReference> findFunctionReferences(const Workspace &workspace
     return references;
 }
 
-std::vector<const FunctionDecl *> declarationsOf(const LoadedWorkspace &loaded, const FunctionDecl *function) {
-    auto usr = usrOf(function);
-    std::map<FileOffset, const FunctionDecl *> byLocation;
+std::vector<const ValueDecl *> declarationsOf(const LoadedWorkspace &loaded, const ValueDecl *target) {
+    auto usr = usrOf(target);
+    std::map<FileOffset, const ValueDecl *> byLocation;
     for (const auto &unit : loaded.units) {
         for (const auto *declaration : unit.declarations) {
-            const auto *candidate = dyn_cast<FunctionDecl>(declaration);
-            if (!candidate || candidate->isTemplateInstantiation() || !candidate->getDeclName().isIdentifier() ||
-                candidate->getName() != function->getName() || usrOf(candidate) != usr) {
+            const auto *candidate = dyn_cast<ValueDecl>(declaration);
+            if (!candidate || !isa<FunctionDecl, VarDecl>(candidate) || !candidate->getDeclName().isIdentifier() ||
+                candidate->getName() != target->getName()) {
+                continue;
+            }
+            if (const auto *function = dyn_cast<FunctionDecl>(candidate);
+                function && function->isTemplateInstantiation()) {
+                continue;
+            }
+            if (const auto *variable = dyn_cast<VarDecl>(candidate);
+                variable && isTemplateInstantiation(variable->getTemplateSpecializationKind())) {
+                continue;
+            }
+            if (usrOf(candidate) != usr) {
                 continue;
             }
             auto location = fileOffsetOf(candidate->getASTContext().getSourceManager(), candidate->getLocation());
@@ -289,7 +306,7 @@ std::vector<const FunctionDecl *> declarationsOf(const LoadedWorkspace &loaded, 
             }
         }
     }
-    std::vector<const FunctionDecl *> result;
+    std::vector<const ValueDecl *> result;
     for (const auto &[location, declaration] : byLocation) {
         result.push_back(declaration);
     }

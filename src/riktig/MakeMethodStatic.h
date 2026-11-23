@@ -43,8 +43,8 @@ class MakeMethodStaticPlanner {
                            clang::SourceLocation location = {}, std::string suggestion = {});
     std::optional<RefusalReason> rewriteDeclaration(const clang::CXXMethodDecl *declaration);
     std::optional<RefusalReason> rewriteBody(const clang::CXXMethodDecl *definition);
-    std::optional<RefusalReason> rewriteCall(const FunctionReference &reference);
-    bool isInBodyOfMethod(const FunctionReference &reference) const;
+    std::optional<RefusalReason> rewriteCall(const Reference &reference);
+    bool isInBodyOfMethod(const Reference &reference) const;
     std::optional<FileRange> rangeAt(const clang::ASTContext &context, clang::SourceLocation location) const;
 
     const Workspace &workspace_;
@@ -52,8 +52,8 @@ class MakeMethodStaticPlanner {
     LoadedWorkspace loaded_;
     const clang::CXXMethodDecl *method_ = nullptr;
     const clang::CXXRecordDecl *record_ = nullptr;
-    std::vector<const clang::FunctionDecl *> declarations_;
-    std::vector<FunctionReference> references_;
+    std::vector<const clang::CXXMethodDecl *> declarations_;
+    std::vector<Reference> references_;
     std::optional<RefusalReason> brokenPrecondition_;
     EditPlan plan_;
     // Receivers of calls in the method's own body: `this`, which the call's rewrite replaces with the receiver

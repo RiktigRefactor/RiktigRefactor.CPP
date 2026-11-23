@@ -2,6 +2,7 @@
 
 #include "ExtractIife.h"
 #include "MakeMethodStatic.h"
+#include "MoveStaticMember.h"
 #include "Protocol.h"
 #include "Rename.h"
 #include "Workspace.h"
@@ -13,5 +14,6 @@ namespace riktig {
 RefactoringResult naiveRename(const Workspace &workspace, const RenameRequest &request);
 RefactoringResult naiveExtractIife(const Workspace &workspace, const ExtractIifeRequest &request);
 RefactoringResult naiveMakeMethodStatic(const Workspace &workspace, const MakeMethodStaticRequest &request);
+RefactoringResult naiveMoveStaticMember(const Workspace &workspace, const MoveStaticMemberRequest &request);
 
 } // namespace riktig

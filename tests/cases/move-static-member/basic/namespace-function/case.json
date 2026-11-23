@@ -1,0 +1,11 @@
+{
+  "options": {
+    "target": "shop"
+  },
+  "spec": [
+    "C++ [namespace.def]",
+    "C++ [namespace.qual]",
+    "C++ [basic.lookup.argdep]"
+  ],
+  "notes": "A namespace-scope function moves to another namespace block in the same file; a qualified call, an unqualified call from the source namespace, and an argument-dependent call all become qualified calls."
+}

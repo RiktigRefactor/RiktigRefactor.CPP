@@ -46,10 +46,10 @@ std::optional<unsigned> endOfTokenAt(const clang::ASTContext &context, clang::So
 // The next token after the one at `location`, if it is written in a file.
 std::optional<OffsetRange> nextTokenAfter(const clang::ASTContext &context, clang::SourceLocation location);
 
-struct FunctionReference {
+struct Reference {
     TranslationUnitBindings *unit = nullptr;
     clang::ASTContext *context = nullptr;
-    // A DeclRefExpr or MemberExpr naming the function.
+    // A DeclRefExpr or MemberExpr naming the target.
     const clang::Expr *expression = nullptr;
     // The call whose callee is the reference, if any.
     const clang::CallExpr *call = nullptr;
@@ -61,13 +61,12 @@ struct FunctionReference {
     bool inMacro = false;
 };
 
-// Every reference to the function in every translation unit, including those in template instantiations.
-std::vector<FunctionReference> findFunctionReferences(const Workspace &workspace, LoadedWorkspace &loaded,
-                                                      const clang::FunctionDecl *function);
+// Every reference to the function or variable in every translation unit, including in template instantiations.
+std::vector<Reference> findReferences(const Workspace &workspace, LoadedWorkspace &loaded,
+                                      const clang::ValueDecl *target);
 
-// Every declaration of the function in every translation unit, once per location.
-std::vector<const clang::FunctionDecl *> declarationsOf(const LoadedWorkspace &loaded,
-                                                        const clang::FunctionDecl *function);
+// Every declaration of the function or variable in every translation unit, once per location.
+std::vector<const clang::ValueDecl *> declarationsOf(const LoadedWorkspace &loaded, const clang::ValueDecl *target);
 
 // The written arguments of a call, without default arguments.
 std::vector<const clang::Expr *> writtenArguments(const clang::CallExpr *call);
