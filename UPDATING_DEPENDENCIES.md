@@ -1,6 +1,6 @@
 # Updating dependencies
 
-Dependabot updates the GitHub Actions.
+Dependabot updates the GitHub Actions, the dotnet tools in `dotnet-tools.json`, and the .NET SDK in `global.json`.
 Everything else is updated by hand.
 
 ## clang and LLVM

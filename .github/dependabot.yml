@@ -1,5 +1,17 @@
 version: 2
 updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ". e "
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ". e "
   - package-ecosystem: github-actions
     directory: /
     schedule:
