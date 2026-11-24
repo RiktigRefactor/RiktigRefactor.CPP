@@ -16,3 +16,7 @@ foreach(case_file IN LISTS case_files)
     file(RELATIVE_PATH case_name "${CMAKE_CURRENT_SOURCE_DIR}/cases" "${case_directory}")
     add_test(NAME "${case_name}" COMMAND riktig-cpp-case-runner "${case_directory}")
 endforeach()
+
+add_executable(riktig-cpp-language-server-test lsp/LanguageServerTest.cpp)
+target_link_libraries(riktig-cpp-language-server-test PRIVATE riktigrefactor-cpp)
+add_test(NAME language-server COMMAND riktig-cpp-language-server-test)

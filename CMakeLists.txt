@@ -32,6 +32,7 @@ add_library(riktigrefactor-cpp STATIC
     src/riktig/ExtractObjectFromArguments.cpp
     src/riktig/FunctionRefactoring.cpp
     src/riktig/Independence.cpp
+    src/riktig/LanguageServer.cpp
     src/riktig/MakeMethodStatic.cpp
     src/riktig/MoveStaticMember.cpp
     src/riktig/ConvertToInstanceMethod.cpp

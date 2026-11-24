@@ -1,6 +1,7 @@
 #include "ConvertToInstanceMethod.h"
 #include "ExtractIife.h"
 #include "ExtractObjectFromArguments.h"
+#include "LanguageServer.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
 #include "Rename.h"
@@ -11,6 +12,11 @@
 #include "llvm/Support/FormatVariadic.h"
 #include "llvm/Support/raw_ostream.h"
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+#include <iostream>
 #include <map>
 #include <optional>
 #include <sstream>
@@ -26,6 +32,7 @@ constexpr int ExitRefused = 1;
 constexpr int ExitError = 2;
 
 const char *usage = R"(Usage:
+  riktig-cpp lsp
   riktig-cpp rename --workspace <compile_commands.json> --file <file> --at <line>:<column> --new-name <name> [--apply] [--json]
   riktig-cpp extract-iife --workspace <compile_commands.json> --file <file> --from <line>:<column> --to <line>:<column> [--apply] [--json]
   riktig-cpp make-method-static --workspace <compile_commands.json> --file <file> --at <line>:<column> [--receiver-name <name>] [--apply] [--json]
@@ -141,6 +148,13 @@ int main(int argc, char **argv) {
         return ExitError;
     }
     std::string command = argv[1];
+    if (command == "lsp") {
+#ifdef _WIN32
+        _setmode(_fileno(stdin), _O_BINARY);
+        _setmode(_fileno(stdout), _O_BINARY);
+#endif
+        return LanguageServer(std::cin, std::cout).run();
+    }
     std::map<std::string, std::string> options;
     bool apply = false;
     bool json = false;

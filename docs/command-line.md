@@ -24,3 +24,15 @@ There are no release binaries yet; build from a clone and run `build/riktig-cpp`
 - [Move static member](move-static-member.md): `move-static-member`
 - [Convert static method to instance method](convert-static-method-to-instance-method.md): `convert-to-instance-method`
 - [Extract object from arguments](extract-object-from-arguments.md): `extract-object-from-arguments`
+
+## Language server
+
+```shell
+riktig-cpp lsp
+```
+
+Runs a language server on standard input and output, for editors such as the [VS Code extension](https://github.com/RiktigRefactor/RiktigRefactor.VSCode).
+It offers Rename as a code action, and runs it when the client sends `workspace/executeCommand` with `riktig.refactor` and a protocol request.
+It finds `compile_commands.json` in the workspace folder or its `build` folder, or takes `initializationOptions.workspace`.
+It reads files from disk and loads the workspace for every request, so the client must save files first.
+The mapping is defined in the [specification](https://github.com/RiktigRefactor/riktigrefactor.spec/blob/main/interfaces.md#lsp-mapping).
