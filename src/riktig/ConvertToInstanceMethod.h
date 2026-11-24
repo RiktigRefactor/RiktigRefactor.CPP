@@ -14,19 +14,19 @@
 
 namespace riktig {
 
-struct MoveToInstanceMethodRequest {
+struct ConvertToInstanceMethodRequest {
     std::string file; // relative to the workspace root, or absolute
     Position at;
     std::string receiver; // the name of the parameter that becomes the receiver
 };
 
-RefactoringResult moveToInstanceMethod(const Workspace &workspace, const MoveToInstanceMethodRequest &request);
+RefactoringResult convertToInstanceMethod(const Workspace &workspace, const ConvertToInstanceMethodRequest &request);
 
-// The steps of Move static method to instance method, exposed so the tests' deliberately naive implementation can
+// The steps of Convert static method to instance method, exposed so the tests' deliberately naive implementation can
 // skip the checks.
-class MoveToInstanceMethodPlanner {
+class ConvertToInstanceMethodPlanner {
   public:
-    MoveToInstanceMethodPlanner(const Workspace &workspace, MoveToInstanceMethodRequest request);
+    ConvertToInstanceMethodPlanner(const Workspace &workspace, ConvertToInstanceMethodRequest request);
 
     std::optional<RefusalReason> parseAndCollect();
     std::optional<RefusalReason> findMethodAndReceiver();
@@ -50,7 +50,7 @@ class MoveToInstanceMethodPlanner {
     std::optional<Replacement> editForParameterUse(clang::ASTContext &context, const clang::DeclRefExpr *use) const;
 
     const Workspace &workspace_;
-    MoveToInstanceMethodRequest request_;
+    ConvertToInstanceMethodRequest request_;
     LoadedWorkspace loaded_;
     const clang::CXXMethodDecl *method_ = nullptr;
     unsigned receiverIndex_ = 0;

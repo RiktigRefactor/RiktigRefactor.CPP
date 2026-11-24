@@ -244,13 +244,13 @@ RefactoringResult runRefactoring(const CaseDefinition &definition, const Markers
         MoveStaticMemberRequest request{markers.file, cursor, target->str()};
         return naive ? naiveMoveStaticMember(*workspace, request) : moveStaticMember(*workspace, request);
     }
-    if (definition.refactoring == "move-to-instance-method") {
+    if (definition.refactoring == "convert-to-instance-method") {
         auto receiver = definition.options.getString("receiver");
         if (!receiver) {
-            throw Failure{"A move-to-instance-method case needs options.receiver"};
+            throw Failure{"A convert-to-instance-method case needs options.receiver"};
         }
-        MoveToInstanceMethodRequest request{markers.file, cursor, receiver->str()};
-        return naive ? naiveMoveToInstanceMethod(*workspace, request) : moveToInstanceMethod(*workspace, request);
+        ConvertToInstanceMethodRequest request{markers.file, cursor, receiver->str()};
+        return naive ? naiveConvertToInstanceMethod(*workspace, request) : convertToInstanceMethod(*workspace, request);
     }
     if (definition.refactoring == "extract-object-from-arguments") {
         auto typeName = definition.options.getString("typeName");

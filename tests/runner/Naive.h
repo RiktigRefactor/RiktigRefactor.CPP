@@ -4,7 +4,7 @@
 #include "ExtractObjectFromArguments.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
-#include "MoveToInstanceMethod.h"
+#include "ConvertToInstanceMethod.h"
 #include "Protocol.h"
 #include "Rename.h"
 #include "Workspace.h"
@@ -19,6 +19,6 @@ RefactoringResult naiveMakeMethodStatic(const Workspace &workspace, const MakeMe
 RefactoringResult naiveMoveStaticMember(const Workspace &workspace, const MoveStaticMemberRequest &request);
 RefactoringResult naiveExtractObjectFromArguments(const Workspace &workspace,
                                                   const ExtractObjectFromArgumentsRequest &request);
-RefactoringResult naiveMoveToInstanceMethod(const Workspace &workspace, const MoveToInstanceMethodRequest &request);
+RefactoringResult naiveConvertToInstanceMethod(const Workspace &workspace, const ConvertToInstanceMethodRequest &request);
 
 } // namespace riktig

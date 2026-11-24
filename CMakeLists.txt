@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # The tool is pinned to one clang version: its AST and binding behavior is what the tests verify.
-set(RIKTIG_CLANG_VERSION 18)
+set(RIKTIG_CLANG_VERSION 23)
 find_package(Clang REQUIRED CONFIG
     HINTS $ENV{RIKTIG_LLVM_ROOT}/lib/cmake/clang /usr/lib/llvm-${RIKTIG_CLANG_VERSION}/lib/cmake/clang)
 if(NOT LLVM_VERSION_MAJOR EQUAL RIKTIG_CLANG_VERSION)
@@ -30,7 +30,7 @@ add_library(riktigrefactor-cpp STATIC
     src/riktig/Independence.cpp
     src/riktig/MakeMethodStatic.cpp
     src/riktig/MoveStaticMember.cpp
-    src/riktig/MoveToInstanceMethod.cpp
+    src/riktig/ConvertToInstanceMethod.cpp
     src/riktig/Protocol.cpp
     src/riktig/RawTokens.cpp
     src/riktig/Rename.cpp

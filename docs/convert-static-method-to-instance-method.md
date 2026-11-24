@@ -1,6 +1,6 @@
-# Move static method to instance method
+# Convert static method to instance method
 
-Move static method to instance method is the inverse of Make method static: a static member function's parameter that is a reference to its own class becomes the receiver:
+Convert static method to instance method is the inverse of Make method static: a static member function's parameter that is a reference to its own class becomes the receiver:
 
 ```cpp
 // Before
@@ -36,7 +36,7 @@ Names captured as strings change with the rename, by design: `__func__`, `typeid
 Make the parameter `order` of the static method at line 4, column 19 its receiver:
 
 ```shell
-riktig-cpp move-to-instance-method --workspace build/compile_commands.json --file src/order.h --at 4:19 --receiver order
+riktig-cpp convert-to-instance-method --workspace build/compile_commands.json --file src/order.h --at 4:19 --receiver order
 ```
 
 See [the command line](command-line.md) for the options every command accepts.

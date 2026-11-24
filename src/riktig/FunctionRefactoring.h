@@ -16,7 +16,7 @@
 #include <vector>
 
 // Support shared by the refactorings that change a function and every call to it: Make method static, Move static
-// member, Move static method to instance method, and Extract object from arguments.
+// member, Convert static method to instance method, and Extract object from arguments.
 namespace riktig {
 
 struct LoadedWorkspace {

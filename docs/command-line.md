@@ -22,5 +22,5 @@ There are no release binaries yet; build from a clone and run `build/riktig-cpp`
 - [Extract IIFE](extract-iife.md): `extract-iife`
 - [Make method static](make-method-static.md): `make-method-static`
 - [Move static member](move-static-member.md): `move-static-member`
-- [Move static method to instance method](move-static-method-to-instance-method.md): `move-to-instance-method`
+- [Convert static method to instance method](convert-static-method-to-instance-method.md): `convert-to-instance-method`
 - [Extract object from arguments](extract-object-from-arguments.md): `extract-object-from-arguments`

@@ -4,7 +4,7 @@ add_executable(riktig-cpp-case-runner
     runner/NaiveExtractObjectFromArguments.cpp
     runner/NaiveMakeMethodStatic.cpp
     runner/NaiveMoveStaticMember.cpp
-    runner/NaiveMoveToInstanceMethod.cpp
+    runner/NaiveConvertToInstanceMethod.cpp
     runner/NaiveRename.cpp
 )
 target_link_libraries(riktig-cpp-case-runner PRIVATE riktigrefactor-cpp)

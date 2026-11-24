@@ -2,7 +2,7 @@
 #include "ExtractObjectFromArguments.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
-#include "MoveToInstanceMethod.h"
+#include "ConvertToInstanceMethod.h"
 #include "Rename.h"
 #include "Results.h"
 #include "Workspace.h"
@@ -30,7 +30,7 @@ const char *usage = R"(Usage:
   riktig-cpp extract-iife --workspace <compile_commands.json> --file <file> --from <line>:<column> --to <line>:<column> [--apply] [--json]
   riktig-cpp make-method-static --workspace <compile_commands.json> --file <file> --at <line>:<column> [--receiver-name <name>] [--apply] [--json]
   riktig-cpp move-static-member --workspace <compile_commands.json> --file <file> --at <line>:<column> --target <qualified name> [--apply] [--json]
-  riktig-cpp move-to-instance-method --workspace <compile_commands.json> --file <file> --at <line>:<column> --receiver <parameter> [--apply] [--json]
+  riktig-cpp convert-to-instance-method --workspace <compile_commands.json> --file <file> --at <line>:<column> --receiver <parameter> [--apply] [--json]
   riktig-cpp extract-object-from-arguments --workspace <compile_commands.json> --file <file> --at <line>:<column> --parameters <name>,<name>... --type-name <name> [--parameter-name <name>] [--apply] [--json]
 
 The workspace is a compile_commands.json file, or the directory holding it.
@@ -208,14 +208,14 @@ int main(int argc, char **argv) {
         return report(*workspace, moveStaticMember(*workspace, MoveStaticMemberRequest{file, *at, options["target"]}),
                       json, apply);
     }
-    if (command == "move-to-instance-method") {
+    if (command == "convert-to-instance-method") {
         auto at = parsePosition(options["at"]);
         if (!at || options["receiver"].empty()) {
             llvm::errs() << usage;
             return ExitError;
         }
         return report(*workspace,
-                      moveToInstanceMethod(*workspace, MoveToInstanceMethodRequest{file, *at, options["receiver"]}),
+                      convertToInstanceMethod(*workspace, ConvertToInstanceMethodRequest{file, *at, options["receiver"]}),
                       json, apply);
     }
     if (command == "extract-object-from-arguments") {

@@ -1,4 +1,4 @@
-#include "MoveToInstanceMethod.h"
+#include "ConvertToInstanceMethod.h"
 
 #include "Independence.h"
 #include "NameChecks.h"
@@ -99,11 +99,11 @@ bool bindsWithoutConversion(const Expr *argument, const CXXRecordDecl *receiverC
 
 } // namespace
 
-MoveToInstanceMethodPlanner::MoveToInstanceMethodPlanner(const Workspace &workspace,
-                                                         MoveToInstanceMethodRequest request)
+ConvertToInstanceMethodPlanner::ConvertToInstanceMethodPlanner(const Workspace &workspace,
+                                                         ConvertToInstanceMethodRequest request)
     : workspace_(workspace), request_(std::move(request)), plan_(workspace) {}
 
-std::optional<FileRange> MoveToInstanceMethodPlanner::rangeAt(const ASTContext &context,
+std::optional<FileRange> ConvertToInstanceMethodPlanner::rangeAt(const ASTContext &context,
                                                               SourceLocation location) const {
     auto offset = fileOffsetOf(context.getSourceManager(), context.getSourceManager().getExpansionLoc(location));
     if (!offset) {
@@ -112,7 +112,7 @@ std::optional<FileRange> MoveToInstanceMethodPlanner::rangeAt(const ASTContext &
     return rangeOf(workspace_, *offset);
 }
 
-void MoveToInstanceMethodPlanner::breakPrecondition(const char *code, std::string message, const ASTContext *context,
+void ConvertToInstanceMethodPlanner::breakPrecondition(const char *code, std::string message, const ASTContext *context,
                                                     SourceLocation location, std::string suggestion) {
     if (brokenPrecondition_) {
         return;
@@ -124,11 +124,11 @@ void MoveToInstanceMethodPlanner::breakPrecondition(const char *code, std::strin
     brokenPrecondition_ = makeRefusal(code, std::move(message), range, std::move(suggestion));
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::parseAndCollect() {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::parseAndCollect() {
     return loadWorkspace(workspace_, loaded_);
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::findMethodAndReceiver() {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::findMethodAndReceiver() {
     const NamedDecl *declaration = nullptr;
     if (auto refusal = findDeclarationAtCursor(workspace_, loaded_, request_.file, request_.at, declaration)) {
         return refusal;
@@ -187,7 +187,7 @@ std::optional<RefusalReason> MoveToInstanceMethodPlanner::findMethodAndReceiver(
     return std::nullopt;
 }
 
-bool MoveToInstanceMethodPlanner::isInBody(const ASTContext &context, SourceLocation location) const {
+bool ConvertToInstanceMethodPlanner::isInBody(const ASTContext &context, SourceLocation location) const {
     auto offset = fileOffsetOf(context.getSourceManager(), context.getSourceManager().getExpansionLoc(location));
     if (!offset) {
         return false;
@@ -204,7 +204,7 @@ bool MoveToInstanceMethodPlanner::isInBody(const ASTContext &context, SourceLoca
     return false;
 }
 
-void MoveToInstanceMethodPlanner::checkPreconditions() {
+void ConvertToInstanceMethodPlanner::checkPreconditions() {
     const auto &context = method_->getASTContext();
     auto name = method_->getNameAsString();
     auto location = method_->getLocation();
@@ -308,7 +308,7 @@ void MoveToInstanceMethodPlanner::checkPreconditions() {
     }
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteCall(const Reference &reference) {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::rewriteCall(const Reference &reference) {
     const auto &context = *reference.context;
     auto failed = [&](std::string message) {
         return makeRefusal(codes::UnsupportedReference, std::move(message),
@@ -425,7 +425,7 @@ std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteCall(const Refe
     return std::nullopt;
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteDeclaration(const CXXMethodDecl *declaration) {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::rewriteDeclaration(const CXXMethodDecl *declaration) {
     const auto &context = declaration->getASTContext();
     auto failed = [&](std::string message) {
         return makeRefusal(codes::UnsupportedMethod, std::move(message), rangeAt(context, declaration->getLocation()));
@@ -490,7 +490,7 @@ std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteDeclaration(con
     return std::nullopt;
 }
 
-std::optional<Replacement> MoveToInstanceMethodPlanner::editForParameterUse(ASTContext &context,
+std::optional<Replacement> ConvertToInstanceMethodPlanner::editForParameterUse(ASTContext &context,
                                                                             const DeclRefExpr *use) const {
     auto range = fileRangeOf(context, use->getSourceRange());
     if (!range) {
@@ -513,7 +513,7 @@ std::optional<Replacement> MoveToInstanceMethodPlanner::editForParameterUse(ASTC
     return Replacement{range->begin, range->end - range->begin, bare ? "*this" : "(*this)"};
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteBody(const CXXMethodDecl *definition) {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::rewriteBody(const CXXMethodDecl *definition) {
     auto &context = definition->getASTContext();
     ParameterUseFinder finder(receiverParameterOf(definition, receiverIndex_));
     finder.TraverseStmt(definition->getBody());
@@ -546,7 +546,7 @@ std::optional<RefusalReason> MoveToInstanceMethodPlanner::rewriteBody(const CXXM
     return std::nullopt;
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::writeEdits() {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::writeEdits() {
     for (const auto &reference : references_) {
         if (!reference.call || reference.inTemplateInstantiation || !reference.inWorkspace || reference.inMacro ||
             receiverIndex_ >= reference.call->getNumArgs()) {
@@ -574,13 +574,13 @@ std::optional<RefusalReason> MoveToInstanceMethodPlanner::writeEdits() {
     return std::nullopt;
 }
 
-std::optional<RefusalReason> MoveToInstanceMethodPlanner::verify() {
+std::optional<RefusalReason> ConvertToInstanceMethodPlanner::verify() {
     return verifyEditPlan(workspace_, loaded_, plan_, {}, "making the method an instance method");
 }
 
-RefactoringResult moveToInstanceMethod(const Workspace &workspace, const MoveToInstanceMethodRequest &request) {
+RefactoringResult convertToInstanceMethod(const Workspace &workspace, const ConvertToInstanceMethodRequest &request) {
     auto refuse = [&](RefusalReason reason) { return RefactoringResult::refused(workspace.root(), std::move(reason)); };
-    MoveToInstanceMethodPlanner planner(workspace, request);
+    ConvertToInstanceMethodPlanner planner(workspace, request);
     if (auto refusal = planner.parseAndCollect()) {
         return refuse(*refusal);
     }

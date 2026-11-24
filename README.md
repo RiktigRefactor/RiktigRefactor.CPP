@@ -17,7 +17,7 @@ This is the C++ implementation of the [RiktigRefactor specification](https://git
     * [Extract IIFE](#extract-iife)
     * [Make method static](#make-method-static)
     * [Move static member](#move-static-member)
-    * [Move static method to instance method](#move-static-method-to-instance-method)
+    * [Convert static method to instance method](#convert-static-method-to-instance-method)
     * [Extract object from arguments](#extract-object-from-arguments)
   * [Using it](#using-it)
   * [Building and testing](#building-and-testing)<!-- endToc -->
@@ -114,9 +114,9 @@ double t = Pricing::total(order, 3);
 
 See more details in [docs/move-static-member.md](docs/move-static-member.md).
 
-### Move static method to instance method
+### Convert static method to instance method
 
-Move static method to instance method is the inverse of Make method static: a parameter of a static member function that is a reference to its own class becomes the receiver.
+Convert static method to instance method is the inverse of Make method static: a parameter of a static member function that is a reference to its own class becomes the receiver.
 
 #### Before
 
@@ -132,7 +132,7 @@ double total(int qty) const { return price * qty; }
 double t = order.total(3);
 ```
 
-See more details in [docs/move-static-method-to-instance-method.md](docs/move-static-method-to-instance-method.md).
+See more details in [docs/convert-static-method-to-instance-method.md](docs/convert-static-method-to-instance-method.md).
 
 ### Extract object from arguments
 
