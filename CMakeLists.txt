@@ -7,7 +7,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # The tool is pinned to one clang version: its AST and binding behavior is what the tests verify.
-set(RIKTIG_CLANG_VERSION 23)
+# .mise.toml is the one place that names the version.
+file(STRINGS .mise.toml RIKTIG_MISE_CLANGDEV_LINE REGEX "^\"conda:clangdev\" = ")
+string(REGEX MATCH "([0-9]+)\\.[0-9]+\\.[0-9]+" RIKTIG_MISE_CLANGDEV_VERSION "${RIKTIG_MISE_CLANGDEV_LINE}")
+set(RIKTIG_CLANG_VERSION ${CMAKE_MATCH_1})
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS .mise.toml)
 find_package(Clang REQUIRED CONFIG
     HINTS $ENV{RIKTIG_LLVM_ROOT}/lib/cmake/clang /usr/lib/llvm-${RIKTIG_CLANG_VERSION}/lib/cmake/clang)
 if(NOT LLVM_VERSION_MAJOR EQUAL RIKTIG_CLANG_VERSION)

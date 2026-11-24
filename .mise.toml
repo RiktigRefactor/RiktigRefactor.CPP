@@ -3,7 +3,7 @@ dotnet = "latest"
 cmake = "latest"
 ninja = "latest"
 
-# LLVM 23 from conda-forge: the llvm-project release tarballs need libtinfo.so.5 on Linux and have no shared libraries on Windows.
+# LLVM from conda-forge, the one place that names the version: the llvm-project release tarballs need libtinfo.so.5 on Linux and have no shared libraries on Windows.
 "conda:clangdev" = "23.1.6"
 "conda:clang-format" = "23.1.6"
 

@@ -9,8 +9,8 @@ Run `./tidy-code` to format the code with `clang-format`.
 
 ## Toolchain
 
-The tool is built on clang LibTooling, pinned to LLVM/clang 23 (`CMakeLists.txt` asks for `Clang 23`).
-`mise` provides the toolchain (LLVM 23, cmake, ninja) from `.mise.toml`; there is nothing to install by hand except `mise`.
+The tool is built on clang LibTooling, pinned to the LLVM/clang version in `.mise.toml`.
+`mise` provides the toolchain (LLVM, cmake, ninja) from `.mise.toml`; there is nothing to install by hand except `mise`.
 See [UPDATING_DEPENDENCIES.md](UPDATING_DEPENDENCIES.md) for moving to a newer clang.
 
 ## Test cases

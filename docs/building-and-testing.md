@@ -1,7 +1,7 @@
 # Building and testing
 
-The tool is pinned to clang 23.
-Install [mise](https://mise.jdx.dev/); it provides clang/LLVM 23, cmake and ninja:
+The tool is pinned to the clang version in `.mise.toml`.
+Install [mise](https://mise.jdx.dev/); it provides clang/LLVM, cmake and ninja:
 
 ```shell
 ./build-and-test
