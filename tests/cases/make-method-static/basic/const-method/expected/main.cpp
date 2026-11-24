@@ -1,6 +1,8 @@
 struct Order {
     double price = 2.5;
+    // begin-snippet: make-method-static-after
     static double total(const Order &self, int qty) { return self.price * qty; }
+    // end-snippet
 };
 
 int main() {

@@ -1,7 +1,9 @@
 struct Order {
     double price = 2.5;
     Order *next = nullptr;
+    // begin-snippet: convert-static-method-to-instance-method-before
     static double /*|*/total(const Order &order, int qty) {
+    // end-snippet
         double own = order.price * qty;
         return order.next ? own + total(*order.next, qty) : own;
     }

@@ -1,6 +1,8 @@
 struct Order {
     double price = 2.5;
+    // begin-snippet: make-method-static-before
     double /*|*/total(int qty) const { return price * qty; }
+    // end-snippet
 };
 
 int main() {

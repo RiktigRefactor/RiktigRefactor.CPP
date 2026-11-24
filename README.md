@@ -32,23 +32,29 @@ Rename renames a symbol and every reference to it across every translation unit 
 
 #### Before
 
+<!-- snippet: rename-before -->
+<a id='snippet-rename-before'></a>
 ```cpp
-struct Order {
-    int qty;
-    int total() const { return qty * 2; }
+struct Size {
+    int /*|*/w;
+    int h;
 };
-int t = Order{3}.total();
 ```
+<sup><a href='/tests/cases/rename/basic/field-with-initializers/input/main.cpp#L1-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-rename-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: rename-after -->
+<a id='snippet-rename-after'></a>
 ```cpp
-struct Order {
-    int quantity;
-    int total() const { return quantity * 2; }
+struct Size {
+    int width;
+    int h;
 };
-int t = Order{3}.total();
 ```
+<sup><a href='/tests/cases/rename/basic/field-with-initializers/expected/main.cpp#L1-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-rename-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/rename.md](docs/rename.md).
 
@@ -58,15 +64,23 @@ Extract IIFE wraps a selected expression, or whole statements of one block, in a
 
 #### Before
 
+<!-- snippet: extract-iife-before -->
+<a id='snippet-extract-iife-before'></a>
 ```cpp
-auto total = price * qty;
+auto total = /*[*/price * qty/*]*/;
 ```
+<sup><a href='/tests/cases/extract-iife/expression/arithmetic/input/main.cpp#L4-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-extract-iife-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: extract-iife-after -->
+<a id='snippet-extract-iife-after'></a>
 ```cpp
 auto total = [](double price, int qty) { return price * qty; }(price, qty);
 ```
+<sup><a href='/tests/cases/extract-iife/expression/arithmetic/expected/main.cpp#L4-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-extract-iife-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/extract-iife.md](docs/extract-iife.md).
 
@@ -76,17 +90,23 @@ Make method static turns an instance member function into a static one, with the
 
 #### Before
 
+<!-- snippet: make-method-static-before -->
+<a id='snippet-make-method-static-before'></a>
 ```cpp
-double total(int qty) const { return price * qty; }
-double t = order.total(3);
+double /*|*/total(int qty) const { return price * qty; }
 ```
+<sup><a href='/tests/cases/make-method-static/basic/const-method/input/main.cpp#L3-L5' title='Snippet source file'>snippet source</a> | <a href='#snippet-make-method-static-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: make-method-static-after -->
+<a id='snippet-make-method-static-after'></a>
 ```cpp
 static double total(const Order &self, int qty) { return self.price * qty; }
-double t = Order::total(order, 3);
 ```
+<sup><a href='/tests/cases/make-method-static/basic/const-method/expected/main.cpp#L3-L5' title='Snippet source file'>snippet source</a> | <a href='#snippet-make-method-static-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/make-method-static.md](docs/make-method-static.md).
 
@@ -96,21 +116,23 @@ Move static member moves a static member function or `constexpr` static data mem
 
 #### Before
 
+<!-- snippet: move-static-member-before -->
+<a id='snippet-move-static-member-before'></a>
 ```cpp
-struct Order {
-    static double total(const Order &self, int qty);
-};
-double t = Order::total(order, 3);
+static double /*|*/total(const Order &self, int qty) { return self.quantity * qty * rate; }
 ```
+<sup><a href='/tests/cases/move-static-member/basic/static-method-to-class/input/main.cpp#L5-L7' title='Snippet source file'>snippet source</a> | <a href='#snippet-move-static-member-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: move-static-member-after -->
+<a id='snippet-move-static-member-after'></a>
 ```cpp
-struct Pricing {
-    static double total(const Order &self, int qty);
-};
-double t = Pricing::total(order, 3);
+static double total(const Order &self, int qty) { return self.quantity * qty * Order::rate; }
 ```
+<sup><a href='/tests/cases/move-static-member/basic/static-method-to-class/expected/main.cpp#L11-L13' title='Snippet source file'>snippet source</a> | <a href='#snippet-move-static-member-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/move-static-member.md](docs/move-static-member.md).
 
@@ -120,17 +142,23 @@ Convert static method to instance method is the inverse of Make method static: a
 
 #### Before
 
+<!-- snippet: convert-static-method-to-instance-method-before -->
+<a id='snippet-convert-static-method-to-instance-method-before'></a>
 ```cpp
-static double total(const Order &order, int qty) { return order.price * qty; }
-double t = Order::total(order, 3);
+static double /*|*/total(const Order &order, int qty) {
 ```
+<sup><a href='/tests/cases/convert-to-instance-method/basic/const-reference-receiver/input/main.cpp#L4-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-convert-static-method-to-instance-method-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: convert-static-method-to-instance-method-after -->
+<a id='snippet-convert-static-method-to-instance-method-after'></a>
 ```cpp
-double total(int qty) const { return price * qty; }
-double t = order.total(3);
+double total(int qty) const {
 ```
+<sup><a href='/tests/cases/convert-to-instance-method/basic/const-reference-receiver/expected/main.cpp#L4-L6' title='Snippet source file'>snippet source</a> | <a href='#snippet-convert-static-method-to-instance-method-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/convert-static-method-to-instance-method.md](docs/convert-static-method-to-instance-method.md).
 
@@ -140,22 +168,23 @@ Extract object from arguments groups adjacent parameters of a function into a ne
 
 #### Before
 
+<!-- snippet: extract-object-from-arguments-before -->
+<a id='snippet-extract-object-from-arguments-before'></a>
 ```cpp
-int total(int base, int count, int step);
-int r = total(1, 3, 2);
+double /*|*/quote(int code, double price, int qty = 1) { return code + price * qty; }
 ```
+<sup><a href='/tests/cases/extract-object-from-arguments/basic/default-omitted-at-some-calls/input/main.cpp#L3-L5' title='Snippet source file'>snippet source</a> | <a href='#snippet-extract-object-from-arguments-before' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### After
 
+<!-- snippet: extract-object-from-arguments-after -->
+<a id='snippet-extract-object-from-arguments-after'></a>
 ```cpp
-struct Steps {
-    int count;
-    int step;
-};
-
-int total(int base, Steps steps);
-int r = total(1, Steps{.count = 3, .step = 2});
+double quote(int code, QuoteLine line) { return code + line.price * line.qty; }
 ```
+<sup><a href='/tests/cases/extract-object-from-arguments/basic/default-omitted-at-some-calls/expected/main.cpp#L8-L10' title='Snippet source file'>snippet source</a> | <a href='#snippet-extract-object-from-arguments-after' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 See more details in [docs/extract-object-from-arguments.md](docs/extract-object-from-arguments.md).
 

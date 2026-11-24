@@ -5,7 +5,9 @@ struct QuoteLine {
     int qty = 1;
 };
 
+// begin-snippet: extract-object-from-arguments-after
 double quote(int code, QuoteLine line) { return code + line.price * line.qty; }
+// end-snippet
 
 int main() {
     double first = quote(sku(), QuoteLine{.price = 2.5, .qty = 2});

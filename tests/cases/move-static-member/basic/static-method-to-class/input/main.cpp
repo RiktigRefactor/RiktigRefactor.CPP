@@ -2,7 +2,9 @@ struct Order {
     static constexpr double rate = 0.5;
     int quantity = 3;
 
+    // begin-snippet: move-static-member-before
     static double /*|*/total(const Order &self, int qty) { return self.quantity * qty * rate; }
+    // end-snippet
     double doubled() const;
 };
 

@@ -1,7 +1,9 @@
+// begin-snippet: rename-before
 struct Size {
     int /*|*/w;
     int h;
 };
+// end-snippet
 
 struct Frame {
     Frame() : w(3) {}

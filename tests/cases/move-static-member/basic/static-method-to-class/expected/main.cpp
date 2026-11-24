@@ -8,7 +8,9 @@ struct Order {
 struct Pricing {
     static constexpr double rate = 2.0;
   public:
+    // begin-snippet: move-static-member-after
     static double total(const Order &self, int qty) { return self.quantity * qty * Order::rate; }
+    // end-snippet
 };
 
 double Order::doubled() const { return Pricing::total(*this, 2) * 2; }

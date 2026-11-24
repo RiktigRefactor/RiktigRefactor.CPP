@@ -1,7 +1,9 @@
+// begin-snippet: rename-after
 struct Size {
     int width;
     int h;
 };
+// end-snippet
 
 struct Frame {
     Frame() : w(3) {}
