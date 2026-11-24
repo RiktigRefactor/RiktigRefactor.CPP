@@ -26,7 +26,7 @@ It refuses when, for example:
 - the function's address is taken;
 - the new member function would override a virtual function of a base class.
 
-Each refusal has a code, listed in [refusal-codes.md](refusal-codes.md).
+Each refusal has a code, listed in [refusal-codes.md](../refusal-codes.md).
 
 See [limitations](https://github.com/RiktigRefactor/riktigrefactor.spec/blob/main/limitations.md) for what is out of scope, such as updating comments and strings.
 Names captured as strings change with the rename, by design: `__func__`, `typeid(T).name()`, and `std::source_location::function_name()` report the new name.
