@@ -20,8 +20,7 @@ This is the C++ implementation of the [RiktigRefactor specification](https://git
     * [Move static method to instance method](#move-static-method-to-instance-method)
     * [Extract object from arguments](#extract-object-from-arguments)
   * [Using it](#using-it)
-  * [Building and testing](#building-and-testing)
-  * [Contributing](#contributing)<!-- endToc -->
+  * [Building and testing](#building-and-testing)<!-- endToc -->
 
 ## What it can do
 
