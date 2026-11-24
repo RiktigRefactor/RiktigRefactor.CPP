@@ -100,11 +100,11 @@ bool bindsWithoutConversion(const Expr *argument, const CXXRecordDecl *receiverC
 } // namespace
 
 ConvertToInstanceMethodPlanner::ConvertToInstanceMethodPlanner(const Workspace &workspace,
-                                                         ConvertToInstanceMethodRequest request)
+                                                               ConvertToInstanceMethodRequest request)
     : workspace_(workspace), request_(std::move(request)), plan_(workspace) {}
 
 std::optional<FileRange> ConvertToInstanceMethodPlanner::rangeAt(const ASTContext &context,
-                                                              SourceLocation location) const {
+                                                                 SourceLocation location) const {
     auto offset = fileOffsetOf(context.getSourceManager(), context.getSourceManager().getExpansionLoc(location));
     if (!offset) {
         return std::nullopt;
@@ -113,7 +113,7 @@ std::optional<FileRange> ConvertToInstanceMethodPlanner::rangeAt(const ASTContex
 }
 
 void ConvertToInstanceMethodPlanner::breakPrecondition(const char *code, std::string message, const ASTContext *context,
-                                                    SourceLocation location, std::string suggestion) {
+                                                       SourceLocation location, std::string suggestion) {
     if (brokenPrecondition_) {
         return;
     }
@@ -491,7 +491,7 @@ std::optional<RefusalReason> ConvertToInstanceMethodPlanner::rewriteDeclaration(
 }
 
 std::optional<Replacement> ConvertToInstanceMethodPlanner::editForParameterUse(ASTContext &context,
-                                                                            const DeclRefExpr *use) const {
+                                                                               const DeclRefExpr *use) const {
     auto range = fileRangeOf(context, use->getSourceRange());
     if (!range) {
         return std::nullopt;

@@ -1,8 +1,8 @@
+#include "ConvertToInstanceMethod.h"
 #include "ExtractIife.h"
 #include "ExtractObjectFromArguments.h"
 #include "MakeMethodStatic.h"
 #include "MoveStaticMember.h"
-#include "ConvertToInstanceMethod.h"
 #include "Rename.h"
 #include "Results.h"
 #include "Workspace.h"
@@ -214,9 +214,10 @@ int main(int argc, char **argv) {
             llvm::errs() << usage;
             return ExitError;
         }
-        return report(*workspace,
-                      convertToInstanceMethod(*workspace, ConvertToInstanceMethodRequest{file, *at, options["receiver"]}),
-                      json, apply);
+        return report(
+            *workspace,
+            convertToInstanceMethod(*workspace, ConvertToInstanceMethodRequest{file, *at, options["receiver"]}), json,
+            apply);
     }
     if (command == "extract-object-from-arguments") {
         auto at = parsePosition(options["at"]);
