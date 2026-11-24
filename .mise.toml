@@ -3,9 +3,9 @@ dotnet = "latest"
 cmake = "latest"
 ninja = "latest"
 
-# LLVM 18 from conda-forge: the llvm-project release tarballs need libtinfo.so.5 on Linux and have no shared libraries on Windows.
-"conda:clangdev" = "18.1.8"
-"conda:clang-format" = "18.1.8"
+# LLVM 23 from conda-forge: the llvm-project release tarballs need libtinfo.so.5 on Linux and have no shared libraries on Windows.
+"conda:clangdev" = "23.1.6"
+"conda:clang-format" = "23.1.6"
 
 [env]
 RIKTIG_LLVM_ROOT = { value = "{{ tools['conda:clangdev'].path }}", tools = true }

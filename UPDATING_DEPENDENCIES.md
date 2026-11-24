@@ -5,7 +5,7 @@ Everything else is updated by hand.
 
 ## clang and LLVM
 
-The tool is pinned to clang 18, the version Ubuntu 24.04 ships, because the tests verify its AST and binding behavior.
+The tool is pinned to clang 23 because the tests verify its AST and binding behavior.
 To move to a newer version:
 
 1. Change `RIKTIG_CLANG_VERSION` in `CMakeLists.txt`.
