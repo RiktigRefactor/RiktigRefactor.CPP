@@ -174,8 +174,6 @@ See [the command line](docs/command-line.md) for the options, exit codes and ref
 ./build-and-test
 ```
 
-See [building and testing](docs/building-and-testing.md) for the toolchain, the test cases, and how they cite the C++ standard.
+For more information, see See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the commit message convention, and [AGENTS.md](AGENTS.md) for how the repo is organized.
