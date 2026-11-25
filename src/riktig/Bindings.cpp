@@ -323,11 +323,9 @@ class BindingVisitor : public RecursiveASTVisitor<BindingVisitor> {
 
     bool TraverseNestedNameSpecifierLoc(NestedNameSpecifierLoc specifier) {
         if (specifier) {
-            auto *nested = specifier.getNestedNameSpecifier();
-            if (nested->getKind() == NestedNameSpecifier::Namespace) {
-                record(specifier.getLocalBeginLoc(), "ref", nested->getAsNamespace());
-            } else if (nested->getKind() == NestedNameSpecifier::NamespaceAlias) {
-                record(specifier.getLocalBeginLoc(), "ref", nested->getAsNamespaceAlias());
+            auto nested = specifier.getNestedNameSpecifier();
+            if (nested.getKind() == NestedNameSpecifier::Kind::Namespace) {
+                record(specifier.getLocalBeginLoc(), "ref", nested.getAsNamespaceAndPrefix().Namespace);
             }
         }
         return Base::TraverseNestedNameSpecifierLoc(specifier);
@@ -349,12 +347,12 @@ class BindingVisitor : public RecursiveASTVisitor<BindingVisitor> {
     }
 
     bool VisitTypedefTypeLoc(TypedefTypeLoc type) {
-        record(type.getNameLoc(), "type", type.getTypedefNameDecl());
+        record(type.getNameLoc(), "type", type.getTypePtr()->getDecl());
         return true;
     }
 
     bool VisitUsingTypeLoc(UsingTypeLoc type) {
-        record(type.getNameLoc(), "type", type.getFoundDecl());
+        record(type.getNameLoc(), "type", type.getTypePtr()->getDecl());
         return true;
     }
 
@@ -412,8 +410,8 @@ class BindingVisitor : public RecursiveASTVisitor<BindingVisitor> {
 void collectPreprocessorFacts(const Workspace &workspace, ASTUnit &unit, TranslationUnitBindings &out) {
     auto &preprocessor = unit.getPreprocessor();
     const auto &sourceManager = unit.getSourceManager();
-    for (auto it = preprocessor.macro_begin(); it != preprocessor.macro_end(); ++it) {
-        out.macroNames.insert(it->first->getName().str());
+    for (const auto &macro : preprocessor.macros()) {
+        out.macroNames.insert(macro.first->getName().str());
     }
     if (auto *record = preprocessor.getPreprocessingRecord()) {
         for (const auto &range : record->getSkippedRanges()) {

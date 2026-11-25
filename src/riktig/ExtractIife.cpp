@@ -260,8 +260,8 @@ class SelectionAnalyzer : public RecursiveASTVisitor<SelectionAnalyzer> {
     bool TraverseCXXTypeidExpr(CXXTypeidExpr *expression) {
         return unevaluated([&] { return Base::TraverseCXXTypeidExpr(expression); });
     }
-    bool TraverseDecltypeTypeLoc(DecltypeTypeLoc type) {
-        return unevaluated([&] { return Base::TraverseDecltypeTypeLoc(type); });
+    bool TraverseDecltypeTypeLoc(DecltypeTypeLoc type, bool traverseQualifier) {
+        return unevaluated([&] { return Base::TraverseDecltypeTypeLoc(type, traverseQualifier); });
     }
     bool TraverseRequiresExpr(RequiresExpr *expression) {
         return unevaluated([&] { return Base::TraverseRequiresExpr(expression); });

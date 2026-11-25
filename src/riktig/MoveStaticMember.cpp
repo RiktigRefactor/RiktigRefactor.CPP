@@ -85,15 +85,19 @@ class SourceScopeNameFinder : public RecursiveASTVisitor<SourceScopeNameFinder> 
         return true;
     }
     bool VisitTypedefTypeLoc(TypedefTypeLoc type) {
-        names.push_back({type.getNameLoc(), type.getTypedefNameDecl()});
+        names.push_back({type.getNameLoc(), type.getTypePtr()->getDecl()});
         return true;
     }
     bool TraverseNestedNameSpecifierLoc(NestedNameSpecifierLoc specifier) {
         // Only the first component of a qualifier is looked up unqualified.
-        if (specifier && !specifier.getPrefix()) {
-            if (auto *ns = specifier.getNestedNameSpecifier()->getAsNamespace()) {
-                names.push_back({specifier.getLocalBeginLoc(), ns});
-            } else if (const auto *type = specifier.getNestedNameSpecifier()->getAsType()) {
+        if (specifier && !prefixOf(specifier)) {
+            auto nested = specifier.getNestedNameSpecifier();
+            if (nested.getKind() == NestedNameSpecifier::Kind::Namespace) {
+                if (const auto *ns = dyn_cast<NamespaceDecl>(nested.getAsNamespaceAndPrefix().Namespace)) {
+                    names.push_back({specifier.getLocalBeginLoc(), ns});
+                }
+            } else if (nested.getKind() == NestedNameSpecifier::Kind::Type) {
+                const auto *type = nested.getAsType();
                 if (const auto *tag = type->getAsTagDecl()) {
                     names.push_back({specifier.getLocalBeginLoc(), tag});
                 } else if (const auto *typedefType = type->getAs<TypedefType>()) {
@@ -103,6 +107,17 @@ class SourceScopeNameFinder : public RecursiveASTVisitor<SourceScopeNameFinder> 
             return true;
         }
         return RecursiveASTVisitor::TraverseNestedNameSpecifierLoc(specifier);
+    }
+
+    static NestedNameSpecifierLoc prefixOf(NestedNameSpecifierLoc specifier) {
+        switch (specifier.getNestedNameSpecifier().getKind()) {
+        case NestedNameSpecifier::Kind::Namespace:
+            return specifier.castAsNamespaceAndPrefix().Prefix;
+        case NestedNameSpecifier::Kind::Type:
+            return specifier.castAsTypeLoc().getPrefix();
+        default:
+            return {};
+        }
     }
 
     struct Name {
