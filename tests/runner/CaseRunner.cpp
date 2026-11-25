@@ -298,6 +298,23 @@ std::string describeRefusal(const RefactoringResult &result) {
     return text;
 }
 
+// mdsnippets markers only choose what the documentation shows, and expected/ may place them around different lines.
+std::string readWithoutSnippetMarkerLines(const std::string &file) {
+    auto text = readFile(file);
+    std::string kept;
+    llvm::StringRef rest = text;
+    while (!rest.empty()) {
+        auto length = std::min(rest.find('\n'), rest.size() - 1) + 1;
+        auto line = rest.take_front(length);
+        rest = rest.drop_front(length);
+        auto content = line.trim();
+        if (!content.starts_with("// begin-snippet:") && content != "// end-snippet") {
+            kept += line;
+        }
+    }
+    return kept;
+}
+
 void compareWithExpected(const std::string &outputDirectory, const std::string &expectedDirectory) {
     std::vector<std::string> outputFiles;
     for (const auto &file : listFiles(outputDirectory)) {
@@ -308,7 +325,7 @@ void compareWithExpected(const std::string &outputDirectory, const std::string &
     if (std::getenv("RIKTIG_WRITE_EXPECTED")) {
         fs::remove_directories(expectedDirectory);
         for (const auto &file : outputFiles) {
-            writeFile(expectedDirectory + "/" + file, readFile(outputDirectory + "/" + file));
+            writeFile(expectedDirectory + "/" + file, readWithoutSnippetMarkerLines(outputDirectory + "/" + file));
         }
         return;
     }
@@ -319,8 +336,8 @@ void compareWithExpected(const std::string &outputDirectory, const std::string &
         throw Failure{"expected/ does not hold the same files as the output"};
     }
     for (const auto &file : outputFiles) {
-        auto actual = readFile(outputDirectory + "/" + file);
-        if (actual != readFile(expectedDirectory + "/" + file)) {
+        auto actual = readWithoutSnippetMarkerLines(outputDirectory + "/" + file);
+        if (actual != readWithoutSnippetMarkerLines(expectedDirectory + "/" + file)) {
             throw Failure{"Output differs from expected/" + file + ". Actual output:\n" + actual};
         }
     }
