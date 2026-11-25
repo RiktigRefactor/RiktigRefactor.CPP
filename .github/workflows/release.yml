@@ -1,0 +1,151 @@
+name: Release
+
+# Every push to main publishes a GitHub prerelease: v<VERSION file>-main.<run number>.
+# A real release is started by hand: Actions > Release > Run workflow, with a version such as 1.2.3
+# (or: gh workflow run release.yml -f version=1.2.3). It tags v<version> and publishes a non-prerelease.
+# LLVM and clang are linked statically, so each archive runs without them installed.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, e.g. 1.2.3 (leave empty for a prerelease)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compute version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Version must look like 1.2.3" >&2; exit 1
+            fi
+            echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(tr -d '[:space:]' < VERSION)-main.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-slim
+            os: linux
+            arch: x64
+            cpack: TGZ
+            ext: tar.gz
+          - runner: ubuntu-24.04-arm
+            os: linux
+            arch: arm64
+            cpack: TGZ
+            ext: tar.gz
+          - runner: windows-2025
+            os: windows
+            arch: x64
+            vcarch: x64
+            cpack: ZIP
+            ext: zip
+          - runner: windows-11-arm
+            os: windows
+            arch: arm64
+            vcarch: arm64
+            cpack: ZIP
+            ext: zip
+          - runner: macos-latest
+            os: macos
+            arch: arm64
+            cpack: TGZ
+            ext: tar.gz
+          - runner: macos-15-intel
+            os: macos
+            arch: x64
+            cpack: TGZ
+            ext: tar.gz
+    name: build ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+      - name: Visual Studio environment (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        env:
+          VCARCH: ${{ matrix.vcarch }}
+        run: ./.github/scripts/import-msvc-env.ps1
+      - name: Build and test
+        shell: bash
+        run: ./build-and-test
+      - name: Build release archive
+        shell: bash
+        run: |
+          mise exec -- cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIKTIG_PACKAGE_VERSION="$VERSION"
+          mise exec -- cmake --build build-release
+          mise exec -- cpack --config build-release/CPackConfig.cmake -G ${{ matrix.cpack }} -B dist
+          mv dist/riktig-cpp-*.${{ matrix.ext }} "dist/riktig-cpp-$VERSION-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.ext }}"
+      - name: Smoke test the unpacked archive
+        shell: bash
+        run: |
+          mkdir smoke
+          if [ "${{ matrix.ext }}" = zip ]; then
+            unzip -q dist/riktig-cpp-*.zip -d smoke
+          else
+            tar -xzf dist/riktig-cpp-*.tar.gz -C smoke
+          fi
+          # With no arguments the tool prints its usage and exits 2.
+          set +e
+          output=$(smoke/*/bin/riktig-cpp* 2>&1)
+          status=$?
+          set -e
+          echo "$output" | head -n 3
+          if [ "$status" -ne 2 ] || ! grep -q "Usage:" <<< "$output"; then
+            echo "Unpacked riktig-cpp did not run" >&2; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: riktig-cpp-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*
+
+  publish:
+    needs: [version, build]
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: v${{ needs.version.outputs.version }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: riktig-cpp-*
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub release
+        run: |
+          flags=(--target "$GITHUB_SHA" --title "$TAG" --generate-notes)
+          if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); else flags+=(--latest); fi
+          gh release create "$TAG" dist/* "${flags[@]}"

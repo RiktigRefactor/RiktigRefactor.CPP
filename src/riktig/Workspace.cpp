@@ -16,8 +16,30 @@
 #ifndef RIKTIG_CLANG_RESOURCE_DIR
 #error "RIKTIG_CLANG_RESOURCE_DIR must name clang's resource directory"
 #endif
+#ifndef RIKTIG_CLANG_RESOURCE_SUFFIX
+#error "RIKTIG_CLANG_RESOURCE_SUFFIX must name clang's resource directory relative to the install prefix"
+#endif
 
 namespace riktig {
+
+namespace {
+
+// A release archive keeps clang's builtin headers beside bin/, so the tool finds them wherever it is unpacked.
+// The build-tree path is the fallback.
+std::string clangResourceDirectory() {
+    std::string executable = llvm::sys::fs::getMainExecutable(nullptr, nullptr);
+    if (!executable.empty()) {
+        llvm::SmallString<256> candidate(llvm::sys::path::parent_path(executable));
+        llvm::sys::path::append(candidate, "..", RIKTIG_CLANG_RESOURCE_SUFFIX);
+        if (llvm::sys::fs::is_directory(candidate)) {
+            llvm::sys::path::remove_dots(candidate, /*remove_dot_dot=*/true);
+            return std::string(candidate);
+        }
+    }
+    return RIKTIG_CLANG_RESOURCE_DIR;
+}
+
+} // namespace
 
 std::string normalizedAbsolutePath(llvm::StringRef path, llvm::StringRef baseDirectory) {
     llvm::SmallString<256> result(path);
@@ -170,7 +192,7 @@ ParsedWorkspace parse(const Workspace &workspace, const FileOverlay &overlay) {
         clang::tooling::ClangTool tool(workspace.compilationDatabase(), {translationUnit},
                                        std::make_shared<clang::PCHContainerOperations>(), fileSystem, files);
         tool.appendArgumentsAdjuster(clang::tooling::getInsertArgumentAdjuster(
-            {"-resource-dir=" RIKTIG_CLANG_RESOURCE_DIR, "-Xclang", "-detailed-preprocessing-record", "-fsyntax-only"},
+            {"-resource-dir=" + clangResourceDirectory(), "-Xclang", "-detailed-preprocessing-record", "-fsyntax-only"},
             clang::tooling::ArgumentInsertPosition::END));
         tool.setDiagnosticConsumer(&collector);
         std::vector<std::unique_ptr<clang::ASTUnit>> units;
