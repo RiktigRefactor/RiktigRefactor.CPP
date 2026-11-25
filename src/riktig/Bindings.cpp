@@ -5,10 +5,10 @@
 #include "clang/AST/ExprConcepts.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/Basic/SourceManager.h"
-#include "clang/UnifiedSymbolResolution/USRGeneration.h"
 #include "clang/Lex/Lexer.h"
 #include "clang/Lex/PreprocessingRecord.h"
 #include "clang/Lex/Preprocessor.h"
+#include "clang/UnifiedSymbolResolution/USRGeneration.h"
 #include "llvm/Support/Path.h"
 
 namespace riktig {
