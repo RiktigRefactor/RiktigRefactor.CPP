@@ -12,7 +12,7 @@ trim_trailing_whitespace = true
 end_of_line = crlf
 
 # Extensionless scripts can't be matched by a file-type glob.
-[{build-and-test,tidy-code}]
+[{build-and-test,tidy-code,fetch-static-llvm}]
 end_of_line = lf
 
 [*.{json,yml,yaml}]

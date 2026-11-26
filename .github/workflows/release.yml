@@ -6,7 +6,8 @@ name: Release
 # LLVM and clang are linked statically, so each archive runs without them installed.
 on:
   push:
-    branches: [main]
+    # static-release is temporary, for proving the static builds; publishing only happens from main.
+    branches: [main, static-release]
   workflow_dispatch:
     inputs:
       version:
@@ -18,7 +19,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -51,12 +52,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: ubuntu-slim
+          # Ubuntu 22.04 sets the glibc floor of the Linux archives.
+          - runner: ubuntu-22.04
             os: linux
             arch: x64
             cpack: TGZ
             ext: tar.gz
-          - runner: ubuntu-24.04-arm
+          - runner: ubuntu-22.04-arm
             os: linux
             arch: arm64
             cpack: TGZ
@@ -87,6 +89,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     env:
       VERSION: ${{ needs.version.outputs.version }}
+      MACOSX_DEPLOYMENT_TARGET: '13.0'
     steps:
       - uses: actions/checkout@v7
       - uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
@@ -96,14 +99,61 @@ jobs:
         env:
           VCARCH: ${{ matrix.vcarch }}
         run: ./.github/scripts/import-msvc-env.ps1
-      - name: Build and test
+      - name: Static zlib and zstd (Linux)
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y zlib1g-dev libzstd-dev zstd
+      - name: Static zlib and zstd (Windows)
+        if: matrix.os == 'windows'
         shell: bash
-        run: ./build-and-test
+        env:
+          VCPKG_COMMIT: 9eec002df1cd109f8f104cd966a763daf9751489 # 2026.10.16
+          TRIPLET: ${{ matrix.vcarch }}-windows-static
+        run: |
+          git init -q vcpkg
+          git -C vcpkg fetch -q --depth 1 https://github.com/microsoft/vcpkg "$VCPKG_COMMIT"
+          git -C vcpkg checkout -q FETCH_HEAD
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          ./vcpkg/vcpkg install --triplet "$TRIPLET" zlib zstd
+          echo "RIKTIG_DEPS_PREFIX=$(cygpath -m "$PWD/vcpkg/installed/$TRIPLET")" >> "$GITHUB_ENV"
+      - name: Restore static LLVM (macOS)
+        id: llvm-cache
+        if: matrix.os == 'macos'
+        uses: actions/cache/restore@v4
+        with:
+          path: static-llvm
+          key: static-llvm-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('.github/scripts/fetch-static-llvm', '.mise.toml') }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}
+      - name: Fetch static LLVM
+        if: steps.llvm-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: mise exec -- ./.github/scripts/fetch-static-llvm ${{ matrix.os }} ${{ matrix.arch }} static-llvm
+      - name: Save static LLVM (macOS)
+        if: matrix.os == 'macos' && steps.llvm-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: static-llvm
+          key: ${{ steps.llvm-cache.outputs.cache-primary-key }}
+      - name: Build and test with static LLVM
+        shell: bash
+        run: |
+          llvm=$PWD/static-llvm
+          compiler=()
+          exe=
+          if [ "${{ matrix.os }}" = windows ]; then
+            llvm=$(cygpath -m "$llvm")
+            exe=.exe
+            compiler=(-DCMAKE_CXX_COMPILER="$llvm/bin/clang-cl.exe")
+          fi
+          if [ "${{ matrix.os }}" = macos ]; then export SDKROOT=$(xcrun --show-sdk-path); fi
+          mise exec -- cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIKTIG_STATIC_LLVM=ON \
+            -DCMAKE_PREFIX_PATH="$llvm;${RIKTIG_DEPS_PREFIX:-}" -DClang_DIR="$llvm/lib/cmake/clang" -DLLVM_DIR="$llvm/lib/cmake/llvm" \
+            -DRIKTIG_CLANGXX="$llvm/bin/clang++$exe" "${compiler[@]}" -DRIKTIG_PACKAGE_VERSION="$VERSION"
+          mise exec -- cmake --build build-release
+          mise exec -- ctest --test-dir build-release --output-on-failure --parallel
       - name: Build release archive
         shell: bash
         run: |
-          mise exec -- cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIKTIG_STATIC_LLVM=ON -DRIKTIG_PACKAGE_VERSION="$VERSION"
-          mise exec -- cmake --build build-release
           mise exec -- cpack --config build-release/CPackConfig.cmake -G ${{ matrix.cpack }} -B dist
           mv dist/riktig-cpp-*.${{ matrix.ext }} "dist/riktig-cpp-$VERSION-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.ext }}"
       - name: Smoke test the unpacked archive
@@ -131,6 +181,7 @@ jobs:
 
   publish:
     needs: [version, build]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-slim
     permissions:
       contents: write

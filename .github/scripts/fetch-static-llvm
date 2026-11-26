@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Puts a static build of the LLVM and clang version named in .mise.toml into a directory, for release archives.
+# Usage: fetch-static-llvm <linux|windows|macos> <x64|arm64> <destination>
+# Linux and Windows use llvm-project's release archives. There is no macOS archive for this version,
+# so on macOS this builds LLVM and clang from the source archive, which takes a few hours.
+
+os=$1
+arch=$2
+destination=$3
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+version=$(sed -n 's/^"conda:clangdev" = "\(.*\)"$/\1/p' "$repo/.mise.toml")
+pinned_version=23.1.6
+if [ "$version" != "$pinned_version" ]; then
+    echo "[error] .mise.toml names LLVM $version but $0 pins the archives of $pinned_version; update the names and SHA256 sums here." >&2
+    exit 1
+fi
+
+case "$os-$arch" in
+    linux-x64)     asset=LLVM-$version-Linux-X64.tar.zst
+                   sha256=59e14234f145927f982b50627e8bafaf2fca50151b7d973d6a0b40796ddcfe9a ;;
+    linux-arm64)   asset=LLVM-$version-Linux-ARM64.tar.zst
+                   sha256=be9ce7840a8f5273cb22305cc6227f737f05735d84df889dad0e123660902698 ;;
+    windows-x64)   asset=clang+llvm-$version-x86_64-pc-windows-msvc.tar.xz
+                   sha256=16af05919cf36958dfb4ddaa4fc4d9d4ff577f5daeb76bc112ea49cd8ced82b2 ;;
+    windows-arm64) asset=clang+llvm-$version-aarch64-pc-windows-msvc.tar.xz
+                   sha256=fa5a25df6a1405fdfb9942f4d5cc73bfc3b8b31cfd43ee2fbd43bd2e3168be01 ;;
+    macos-*)       asset=llvm-project-$version.src.tar.xz
+                   sha256=d3b86ab29cfb4445a6652e5c2642ccc75e04e38084dde3701d323320f35a31da ;;
+    *) echo "[error] Unknown platform $os-$arch" >&2; exit 1 ;;
+esac
+
+download=$(mktemp -d)
+curl --fail --location --silent --show-error --retry 3 --output "$download/$asset" \
+    "https://github.com/llvm/llvm-project/releases/download/llvmorg-$version/$asset"
+echo "$sha256  $download/$asset" | shasum -a 256 --check
+mkdir -p "$destination"
+
+case "$os" in
+    linux)
+        # The archive is compressed with a long window, which tar's own zstd call refuses.
+        zstd --decompress --long=31 --stdout "$download/$asset" | tar -x --strip-components=1 -C "$destination"
+        ;;
+    windows)
+        tar -x --strip-components=1 -f "$download/$asset" -C "$destination"
+        ;;
+    macos)
+        tar -x -f "$download/$asset" -C "$download"
+        cmake -S "$download/llvm-project-$version.src/llvm" -B "$download/build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$destination" \
+            -DLLVM_ENABLE_PROJECTS=clang \
+            -DLLVM_TARGETS_TO_BUILD="X86;AArch64" \
+            -DLLVM_ENABLE_ZLIB=OFF -DLLVM_ENABLE_ZSTD=OFF -DLLVM_ENABLE_LIBXML2=OFF -DLLVM_ENABLE_LIBEDIT=OFF \
+            -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_DOCS=OFF \
+            -DCLANG_INCLUDE_TESTS=OFF -DCLANG_INCLUDE_DOCS=OFF -DCLANG_ENABLE_STATIC_ANALYZER=OFF
+        cmake --build "$download/build" --target install
+        ;;
+esac
+rm -rf "$download"
