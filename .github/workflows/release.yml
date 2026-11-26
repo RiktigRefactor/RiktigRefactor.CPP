@@ -151,7 +151,12 @@ jobs:
             -DCMAKE_PREFIX_PATH="$llvm;${RIKTIG_DEPS_PREFIX:-}" -DClang_DIR="$llvm/lib/cmake/clang" -DLLVM_DIR="$llvm/lib/cmake/llvm" \
             -DRIKTIG_CLANGXX="$llvm/bin/clang++$exe" "${compiler[@]}" -DRIKTIG_PACKAGE_VERSION="$VERSION"
           mise exec -- cmake --build build-release
-          mise exec -- ctest --test-dir build-release --output-on-failure --parallel
+          excluded=()
+          if [ "${{ matrix.os }}" = windows ]; then
+            # These inputs assume left-to-right argument evaluation, but the MSVC ABI evaluates right to left.
+            excluded=(--exclude-regex 'refuse/(first-argument-has-side-effect|arguments-with-side-effects)$')
+          fi
+          mise exec -- ctest --test-dir build-release --output-on-failure --parallel "${excluded[@]}"
       - name: Build release archive
         shell: bash
         run: |
