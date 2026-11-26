@@ -102,7 +102,7 @@ jobs:
       - name: Build release archive
         shell: bash
         run: |
-          mise exec -- cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIKTIG_PACKAGE_VERSION="$VERSION"
+          mise exec -- cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIKTIG_STATIC_LLVM=ON -DRIKTIG_PACKAGE_VERSION="$VERSION"
           mise exec -- cmake --build build-release
           mise exec -- cpack --config build-release/CPackConfig.cmake -G ${{ matrix.cpack }} -B dist
           mv dist/riktig-cpp-*.${{ matrix.ext }} "dist/riktig-cpp-$VERSION-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.ext }}"
