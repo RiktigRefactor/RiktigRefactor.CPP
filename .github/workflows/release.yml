@@ -127,7 +127,7 @@ jobs:
       - name: Fetch static LLVM
         if: steps.llvm-cache.outputs.cache-hit != 'true'
         shell: bash
-        run: mise exec -- ./.github/scripts/fetch-static-llvm ${{ matrix.os }} ${{ matrix.arch }} static-llvm
+        run: mise exec -- bash ./.github/scripts/fetch-static-llvm ${{ matrix.os }} ${{ matrix.arch }} static-llvm
       - name: Save static LLVM (macOS)
         if: matrix.os == 'macos' && steps.llvm-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -171,6 +171,11 @@ jobs:
           status=$?
           set -e
           echo "$output" | head -n 3
+          case "${{ matrix.os }}" in
+            linux) ldd smoke/*/bin/riktig-cpp ;;
+            macos) otool -L smoke/*/bin/riktig-cpp ;;
+            windows) dumpbin -nologo -dependents smoke/*/bin/riktig-cpp.exe ;;
+          esac
           if [ "$status" -ne 2 ] || ! grep -q "Usage:" <<< "$output"; then
             echo "Unpacked riktig-cpp did not run" >&2; exit 1
           fi
