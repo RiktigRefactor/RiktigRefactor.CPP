@@ -15,15 +15,24 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS .mise.toml)
 # Release archives link LLVM and clang statically. Development builds use the shared libraries.
 option(RIKTIG_STATIC_LLVM "Link LLVM and clang statically" OFF)
 if(RIKTIG_STATIC_LLVM)
-# Static LLVM's exported targets name zlib among their dependencies, so it must be found before them.
-# mise's conda zlib keeps its files under Library/ on Windows. Set ZLIB_ROOT rather than HINTS: HINTS
-# makes find_package look for a config package, which zlib does not have.
-if(DEFINED ENV{RIKTIG_ZLIB_ROOT})
-    set(ZLIB_ROOT "$ENV{RIKTIG_ZLIB_ROOT}/Library;$ENV{RIKTIG_ZLIB_ROOT}")
+# Static LLVM's exported targets name ZLIB::ZLIB and zstd::libzstd_static when it was built with them.
+# LLVMConfig finds zlib itself; this makes it pick the static library.
+set(ZLIB_USE_STATIC_LIBS ON)
+# LLVM's Findzstd only recognizes zstd_static.lib on Windows, but vcpkg names the static library zstd.lib.
+find_path(RIKTIG_ZSTD_INCLUDE_DIR zstd.h)
+find_library(RIKTIG_ZSTD_STATIC_LIBRARY NAMES zstd_static ${CMAKE_STATIC_LIBRARY_PREFIX}zstd${CMAKE_STATIC_LIBRARY_SUFFIX})
+if(RIKTIG_ZSTD_INCLUDE_DIR AND RIKTIG_ZSTD_STATIC_LIBRARY)
+    add_library(zstd::libzstd_static STATIC IMPORTED)
+    set_target_properties(zstd::libzstd_static PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${RIKTIG_ZSTD_INCLUDE_DIR}"
+        IMPORTED_LOCATION "${RIKTIG_ZSTD_STATIC_LIBRARY}")
 endif()
-find_package(ZLIB REQUIRED)
-# LLVM's exports name zstd::libzstd_shared as well, and that package ships a config file beside LLVM's.
-find_package(zstd CONFIG REQUIRED HINTS $ENV{RIKTIG_LLVM_ROOT}/Library/lib/cmake/zstd $ENV{RIKTIG_LLVM_ROOT}/lib/cmake/zstd)
+# The official Windows LLVM libraries use the static C runtime.
+set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+# The Linux archive carries its own C++ runtime, so it needs only glibc.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_link_options(-static-libstdc++ -static-libgcc)
+endif()
 endif()
 find_package(Clang REQUIRED CONFIG
     HINTS $ENV{RIKTIG_LLVM_ROOT}/lib/cmake/clang $ENV{RIKTIG_LLVM_ROOT}/Library/lib/cmake/clang /usr/lib/llvm-${RIKTIG_CLANG_VERSION}/lib/cmake/clang)
@@ -32,10 +41,18 @@ if(NOT LLVM_VERSION_MAJOR EQUAL RIKTIG_CLANG_VERSION)
 endif()
 find_program(RIKTIG_CLANGXX clang++-${RIKTIG_CLANG_VERSION} clang++ HINTS ${LLVM_TOOLS_BINARY_DIR} REQUIRED)
 
-if(NOT LLVM_ENABLE_RTTI)
-    add_compile_options(-fno-rtti)
+# clang-cl reads -Wall as -Weverything, so it gets the MSVC spellings.
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    if(NOT LLVM_ENABLE_RTTI)
+        add_compile_options(/GR-)
+    endif()
+    add_compile_options(/W4 -Wno-unused-parameter)
+else()
+    if(NOT LLVM_ENABLE_RTTI)
+        add_compile_options(-fno-rtti)
+    endif()
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 endif()
-add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 
 add_library(riktigrefactor-cpp STATIC
     src/riktig/Bindings.cpp
@@ -84,16 +101,6 @@ target_link_libraries(riktig-cpp PRIVATE riktigrefactor-cpp)
 # Release packaging: `cpack --config build/CPackConfig.cmake` makes an archive holding bin/riktig-cpp.
 # RIKTIG_PACKAGE_VERSION is passed by .github/workflows/release.yml; VERSION holds the base for prereleases.
 install(TARGETS riktig-cpp RUNTIME DESTINATION bin)
-# Windows: LLVM and clang are built against the dynamic C runtime, and zstd is a DLL, so the archive carries
-# the runtime DLLs next to the binary. InstallRequiredSystemLibraries picks up the MSVC runtime from the
-# Visual Studio environment; zstd.dll comes from the zstd imported target.
-if(WIN32 AND RIKTIG_STATIC_LLVM)
-    include(InstallRequiredSystemLibraries)
-    if(TARGET zstd::libzstd_shared)
-        get_target_property(RIKTIG_ZSTD_DLL zstd::libzstd_shared IMPORTED_LOCATION_RELEASE)
-        install(FILES "${RIKTIG_ZSTD_DLL}" DESTINATION bin)
-    endif()
-endif()
 install(FILES LICENSE README.md DESTINATION .)
 install(DIRECTORY "${LLVM_LIBRARY_DIR}/clang/${LLVM_VERSION_MAJOR}/include"
     DESTINATION lib/riktig-cpp/clang/${LLVM_VERSION_MAJOR})
