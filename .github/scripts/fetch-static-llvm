@@ -34,10 +34,10 @@ esac
 download=$(mktemp -d)
 curl --fail --location --silent --show-error --retry 3 --output "$download/$asset" \
     "https://github.com/llvm/llvm-project/releases/download/llvmorg-$version/$asset"
-if command -v sha256sum >/dev/null; then
-    echo "$sha256  $download/$asset" | sha256sum --check
-else
-    echo "$sha256  $download/$asset" | shasum -a 256 --check
+actual_sha256=$( (sha256sum "$download/$asset" 2>/dev/null || shasum -a 256 "$download/$asset") | cut -d' ' -f1)
+if [ "$actual_sha256" != "$sha256" ]; then
+    echo "[error] $asset has SHA256 $actual_sha256, expected $sha256" >&2
+    exit 1
 fi
 mkdir -p "$destination"
 
