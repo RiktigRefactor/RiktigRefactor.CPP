@@ -18,8 +18,9 @@ on:
 permissions:
   contents: read
 
+# Publishing from main runs one at a time; runs on other branches don't wait for each other.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.ref == 'refs/heads/main' && 'main' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
