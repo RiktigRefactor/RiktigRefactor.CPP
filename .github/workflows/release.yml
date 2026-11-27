@@ -6,8 +6,7 @@ name: Release
 # LLVM and clang are linked statically, so each archive runs without them installed.
 on:
   push:
-    # static-release is temporary, for proving the static builds; publishing only happens from main.
-    branches: [main, static-release]
+    branches: [main]
   workflow_dispatch:
     inputs:
       version:
@@ -18,9 +17,8 @@ on:
 permissions:
   contents: read
 
-# Publishing from main runs one at a time; runs on other branches don't wait for each other.
 concurrency:
-  group: release-${{ github.ref == 'refs/heads/main' && 'main' || github.run_id }}
+  group: release
   cancel-in-progress: false
 
 jobs:
