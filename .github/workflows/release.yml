@@ -186,7 +186,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: riktig-cpp-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/*
+          path: dist/riktig-cpp-*
 
   publish:
     needs: [version, build]
@@ -209,4 +209,4 @@ jobs:
         run: |
           flags=(--target "$GITHUB_SHA" --title "$TAG" --generate-notes)
           if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); else flags+=(--latest); fi
-          gh release create "$TAG" dist/* "${flags[@]}"
+          gh release create "$TAG" dist/riktig-cpp-* "${flags[@]}"
