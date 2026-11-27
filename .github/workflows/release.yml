@@ -119,7 +119,7 @@ jobs:
       - name: Restore static LLVM (macOS)
         id: llvm-cache
         if: matrix.os == 'macos'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: static-llvm
           key: static-llvm-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('.github/scripts/fetch-static-llvm', '.mise.toml') }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}
@@ -129,7 +129,7 @@ jobs:
         run: mise exec -- bash ./.github/scripts/fetch-static-llvm ${{ matrix.os }} ${{ matrix.arch }} static-llvm
       - name: Save static LLVM (macOS)
         if: matrix.os == 'macos' && steps.llvm-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: static-llvm
           key: ${{ steps.llvm-cache.outputs.cache-primary-key }}
